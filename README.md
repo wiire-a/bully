@@ -5,9 +5,9 @@ Bully is a new implementation of the WPS brute force attack, written in C. It is
 to other programs, in that it exploits the (now well known) design flaw in the WPS specification. It has
 several advantages over the original reaver code. These include fewer dependencies, improved memory and
 cpu performance, correct handling of endianness, and a more robust set of options. It runs on Linux, and
-was specifically developed to run on embedded Linux systems (OpenWrt, etc) regardless of architecure.
+was specifically developed to run on embedded Linux systems (OpenWrt, etc) regardless of architecture.
 
-Bully provides several improvements in the detection and handling of anomolous scenarios. It has been
+Bully provides several improvements in the detection and handling of anomalous scenarios. It has been
 tested against access points from numerous vendors, and with differing configurations, with much success.
 
 
@@ -42,7 +42,7 @@ get you up and running:
 	cp -rf ~/bully/* ~/kamikaze/package/bully
 	make menuconfig
 
-Navigate to Network-->wireless and select bully (module or builtin), exit and save. If you elected to
+Navigate to Network-->wireless and select bully (module or built-in), exit and save. If you elected to
 build as a package, type
 
 	make package/bully/{clean,compile} V=99
@@ -62,7 +62,7 @@ Ensure that you are root, and are using wireless hardware that is capable of inj
 interface.
 
 <pre><code>
-usage: bully <options> interface
+usage: bully \<options\> interface
 Required arguments:
   interface      : Wireless interface in monitor mode (root required)
   -b, --bssid macaddr    : MAC address of the target access point

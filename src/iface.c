@@ -59,6 +59,7 @@ int set_chanx(struct global *G, int chanx)
 			chanx = channel = 0;
 		} else {
 			freq = wrq.u.freq.m;
+			if (freq < 100000000) freq *= 100000000;
 			for (chanx=1; chanx<=G->chans[0]; chanx++)
 				if (freq == G->freqs[chanx]) {
 					channel = G->chans[chanx];

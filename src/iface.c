@@ -56,7 +56,6 @@ int set_chanx(struct global *G, int chanx)
 	} else {
 		if (ioctl(sock, SIOCGIWFREQ, &wrq) < 0) {
 			vprint("[!] ioctl(SIOCGIWFREQ) on '%s' failed with '%d'\n", G->ifname, result);
-			chanx = channel = 0;
 		} else {
 			freq = wrq.u.freq.m;
 			if (freq < 100000000) freq *= 100000000;
@@ -66,8 +65,8 @@ int set_chanx(struct global *G, int chanx)
 					goto set_exit;
 				};
 			vprint("[X] Unknown frequency '%d' reported by interface '%s'\n", freq, G->ifname);
-			exit(8);
 		};
+		chanx = channel = 0;
 	};
 set_exit:
 	close(sock);

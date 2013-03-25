@@ -1,4 +1,8 @@
 
+*A readonly subversion clone of this project exists at http://code.google.com/p/bully/source/checkout *
+
+*Prebuilt binary(s) can be downloaded from google code at http://code.google.com/p/bully/downloads/list *
+
 # OVERVIEW
 
 Bully is a new implementation of the WPS brute force attack, written in C. It is conceptually identical

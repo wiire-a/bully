@@ -29,8 +29,9 @@ functionality.
 
 Bully can be built and installed by running:
 
-	$ make
-	$ sudo make install
+	~/bully$ cd src
+	~/bully/src$ make
+	~/bully/src$ sudo make install
 
 
 # OPENWRT BUILDS

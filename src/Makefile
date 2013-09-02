@@ -1,3 +1,7 @@
+prefix = /usr/local
+exec_prefix = $(prefix)
+bindir = $(exec_prefix)/bin
+
 W_NAME	= bully
 W_ROOT	= `pwd`
 

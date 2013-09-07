@@ -133,6 +133,7 @@ struct global {
 	int	dcount;
 	int	state;
 	int	pinstart;
+	int	pindex;
 	int	d1xlnx;
 	int	eapidx;
 	int	eaplnx;
@@ -176,8 +177,9 @@ char usage[] =
 "  Optional arguments:\n"
 "\n"
 "      -c, --channel N[,N...] : Channel number of AP, or list to hop [b/g]\n"
+"      -i, --index N          : Index of starting pin (7 digits)    [Auto]\n"
 "      -l, --lockwait N       : Seconds to wait if the AP locks WPS   [43]\n"
-"      -p, --pin N            : Index of pin to start at (7 digits) [Auto]\n"
+"      -p, --pin N            : Starting pin number (7 digits)      [Auto]\n"
 "      -s, --source macaddr   : Source (hardware) MAC address      [Probe]\n"
 "      -v, --verbosity N      : Verbosity level 1-3, 1 is quietest     [3]\n"
 "      -w, --workdir          : Location of pin/session files  [~/.bully/]\n"

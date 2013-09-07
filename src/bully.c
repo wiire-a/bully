@@ -150,7 +150,7 @@ int main(int argc, char *argv[])
 		G->k1step = 1;
 		G->k2delay = 5;
 		G->k2step = 1;
-		G->pinstart = -1;
+		G->pinstart = G->pindex = -1;
 
 		char *temp = getpwuid(getuid())->pw_dir;
 		G->warpath = malloc(strlen(temp) + strlen(EXE_NAME) + 3);
@@ -175,6 +175,7 @@ int main(int argc, char *argv[])
 			{"bssid",	1,	0,	'b'},
 			{"channel",	1,	0,	'c'},
 			{"essid",	1,	0,	'e'},
+			{"index",	1,	0,	'i'},
 			{"lockwait",	1,	0,	'l'},
 			{"m13time",	1,	0,	'm'},
 			{"pin",		1,	0,	'p'},
@@ -203,7 +204,7 @@ int main(int argc, char *argv[])
 			{0,		0,	0,	 0 }
 		};
 
-		int option = getopt_long( argc, argv, "a:b:c:e:l:m:p:r:s:t:v:w:1:2:5ACDEFLMNPRSTWh",
+		int option = getopt_long( argc, argv, "a:b:c:e:i:l:m:p:r:s:t:v:w:1:2:5ACDEFLMNPRSTWh",
 					long_options, &option_index );
 
 		if( option < 0 ) break;
@@ -230,6 +231,12 @@ int main(int argc, char *argv[])
 			case 'e' :
 				G->essid = optarg;
 				break;
+			case 'i' :
+				if (get_int(optarg, &G->pindex) != 0 || 9999999 < G->pindex) {
+					snprintf(G->error, 256, "Bad starting index number -- %s\n", optarg);
+					goto usage_err;
+				};
+				break;
 			case 'l' :
 				if (get_int(optarg, &G->lwait) != 0) {
 					snprintf(G->error, 256, "Bad lock wait number -- %s\n", optarg);
@@ -244,7 +251,7 @@ int main(int argc, char *argv[])
 				break;
 			case 'p' :
 				if (get_int(optarg, &G->pinstart) != 0 || 9999999 < G->pinstart) {
-					snprintf(G->error, 256, "Bad starting pin index number -- %s\n", optarg);
+					snprintf(G->error, 256, "Bad starting pin number -- %s\n", optarg);
 					goto usage_err;
 				};
 				break;
@@ -361,6 +368,17 @@ int main(int argc, char *argv[])
 		return 1;
 	};
 
+	if (-1 < G->pindex) {
+		if (-1 < G->pinstart) {
+			G->error = "Options --index and --pin are mutually exclusive\n";
+			goto usage_err;
+		};
+		if (G->random == 0) {
+			G->error = "Option --index is meaningless when specifying --sequential\n";
+			goto usage_err;
+		};
+	};
+
 	G->ifname = argv[optind];
 
 	if (G->essid == 0 && G->ssids == 0) {
@@ -387,6 +405,14 @@ int main(int argc, char *argv[])
 	};
 	G->chanx = set_chanx(G, G->chanx);
 	G->start = (G->chanx ? G->chanx : G->chans[0]);
+
+	if (-1 < G->pinstart && G->random) {
+		vprint("[!] Starting pin specified, defaulting to sequential mode\n");
+		G->random = 0;
+	};
+
+	if (-1 < G->pindex)
+		G->pinstart = G->pindex;
 
 	G->pfd = pcap_open_live(G->ifname, 65536, 1, G->acktime, G->perr);
 	pcap_close(G->pfd);

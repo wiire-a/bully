@@ -651,7 +651,7 @@ int main(int argc, char *argv[])
 	sigaction(SIGCHLD, &sigact, 0);
 
 	struct timeval start, now;
-	int time, last, secs, hour, mins, i, d;
+	int time, last, secs, hour, mins, i, d, key1hit = 0;
 	gettimeofday(&start, 0);
 	last = start.tv_sec;
 
@@ -712,10 +712,12 @@ int main(int argc, char *argv[])
 			};
 
 			if (result == KEY1NAK) {
-				pindex += 1000;
-				if (pinmax <= pindex) {
-					vprint("[X] Exhausted first-half possibilities without success\n");
-					return 7;
+				if (!key1hit) {
+					pindex += 1000;
+					if (pinmax <= pindex) {
+						vprint("[X] Exhausted first-half possibilities without success\n");
+						return 7;
+					};
 				};
 				if (G->k1delay && (G->k1step <= ++G->k1count)) {
 					G->delay += G->k1delay * 1000;
@@ -723,6 +725,7 @@ int main(int argc, char *argv[])
 				};
 			} else {
 				if (result == KEY2NAK) {
+					key1hit = 1;
 					if (pinmax == 10000000)
 						pinmax = (pindex/1000+1)*1000;
 					pindex++;

@@ -253,17 +253,15 @@ int get_start(struct global *G)
 
 	if (G->random) {
 		if (index == pin) {
-			vprint("[X] Prior session used sequential pins, can't continue\n");
-			exit(8);
+			vprint("[!] Warning: Randomized search requested but prior session was sequential\n");
 		} else
 			if (pin != G->pin1[index/1000] * 1000 + G->pin2[index%1000]) {
-				vprint("[X] Randomized pins modified after last run, can't continue\n");
+				vprint("[X] Randomized pin file modified after last run, can't continue\n");
 				exit(8);
 			};
 	} else
 		if (index != pin) {
-			vprint("[X] Prior session used randomized pins, can't continue\n");
-			exit(8);
+			vprint("[!] Warning: Sequential search requested but prior session was randomized\n");
 		};
 
 	return index;

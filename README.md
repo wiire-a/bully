@@ -75,13 +75,15 @@ Or
   -e, --essid string     : Extended SSID for the access point
 Optional arguments:
   -c, --channel N[,N...] : Channel number of AP, or list to hop [b/g]
+  -i, --index N          : Starting pin index (7 or 8 digits)  [Auto]
   -l, --lockwait N       : Seconds to wait if the AP locks WPS   [43]
-  -p, --pin N            : Index of pin to start at (7 digits) [Auto]
+  -p, --pin N            : Starting pin number (7 or 8 digits) [Auto]
   -s, --source macaddr   : Source (hardware) MAC address      [Probe]
   -v, --verbosity N      : Verbosity level 1-3, 1 is quietest     [3]
-  -w, --workdir          : Location of pin/session files  [~/.bully/]
+  -w, --workdir path     : Location of pin/session files  [~/.bully/]
   -5, --5ghz             : Hop on 5GHz a/n default channel list  [No]
-  -F, --fixed            : Fixed channel operation (do not hop)  [No]
+  -B, --bruteforce       : Bruteforce the WPS pin checksum digit [No]
+  -F, --force            : Force continue in spite of warnings   [No]
   -S, --sequential       : Sequential pins (do not randomize)    [No]
   -T, --test             : Test mode (do not inject any packets) [No]
 Advanced arguments:
@@ -115,6 +117,14 @@ Advanced arguments:
 		especially when the AP's signal is weak, because time is spent scanning channels instead
 		of testing pins. If no channel is provided, bully will hop on all channels.
 
+      -i, --index N
+
+		This is the index of the starting pin number in the randomized pin file. This option is
+		not valid when running bully in sequential pin search mode.  This is typically handled
+		for you automatically, i.e. an interrupted session will resume after the last pin that
+		was successfully tested. Note that when less than 7 digits (8 digits if -B is active) are
+		given, zeroes are padded on the left.
+
       -l, --lockwait N
 
 		Number of seconds to wait when an AP locks WPS. Most AP's will lock out for 5 minutes, so
@@ -123,9 +133,11 @@ Advanced arguments:
 
       -p, --pin N
 
-		This is the starting pin number (sequential runs) or the index of the starting pin number
-		(randomized runs).  This is typically handled for you automatically, i.e. an interrupted
-		session will resume after the last pin that was successfully tested.
+		This is the starting pin number. Use of this option results in a sequential pin search
+		starting at the given pin. This is typically handled for you automatically, i.e. an
+		interrupted session will resume after the last pin that was successfully tested. Note
+		that when less than 7 digits (8 digits if -B is active) are given, zeroes are padded on
+		the left.
 
       -s, --source macaddr
 
@@ -139,7 +151,7 @@ Advanced arguments:
 		3 displays the most information, and is best used to determine exactly what is happening
 		during a session.
 
-      -w, --workdir
+      -w, --workdir path
 
 		Working directory, where randomized pins and session files are stored. Session files are
 		created in this directory based on the BSSID of the access point. Only one set of randomized
@@ -151,9 +163,18 @@ Advanced arguments:
 
 		Use 5 GHz (a/n) channels instead of 2.54 GHz (b/g) channels. Untested.
 
-      -F, --fixed
+      -B, --bruteforce
 
-		Uhm, deprecated. The right way to do this is specify a single channel using --channel. Idk.
+		Bruteforce the WPS pin checksum digit rather than calculating it according to the WPS
+		specification. Some AP's use a non-compliant checksum in an attempt to evade attacks from
+		compliant software. Use of this option can result in a ten-fold increase in the time it
+		takes to discover the second portion of the pin, and should only be used when necessary.
+
+      -F, --force
+
+		In certain scenarios bully will print a warning message and exit. This typically indicates that
+		it is being used in a manner that is questionable for most users. Advanced users and developers
+		can force continuance with this option.
 
       -S, --sequential
 

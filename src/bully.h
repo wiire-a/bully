@@ -111,12 +111,14 @@ struct global {
 	int	win7;
 	int	eapfail;
 	int	fixed;
+	int	force;
 	int	random;
 	int	ignore;
 	int	verbose;
 	int	has_rth;
 	int	has_fcs;
 	int	nocheck;
+	int	broken;
 	int	use_ack;
 	int	m57nack;
 	int	retries;
@@ -177,14 +179,15 @@ char usage[] =
 "  Optional arguments:\n"
 "\n"
 "      -c, --channel N[,N...] : Channel number of AP, or list to hop [b/g]\n"
-"      -i, --index N          : Index of starting pin (7 digits)    [Auto]\n"
+"      -i, --index N          : Starting pin index (7 or 8 digits)  [Auto]\n"
 "      -l, --lockwait N       : Seconds to wait if the AP locks WPS   [43]\n"
-"      -p, --pin N            : Starting pin number (7 digits)      [Auto]\n"
+"      -p, --pin N            : Starting pin number (7 or 8 digits) [Auto]\n"
 "      -s, --source macaddr   : Source (hardware) MAC address      [Probe]\n"
 "      -v, --verbosity N      : Verbosity level 1-3, 1 is quietest     [3]\n"
-"      -w, --workdir          : Location of pin/session files  [~/.bully/]\n"
+"      -w, --workdir path     : Location of pin/session files  [~/.bully/]\n"
 "      -5, --5ghz             : Hop on 5GHz a/n default channel list  [No]\n"
-"      -F, --fixed            : Fixed channel operation (do not hop)  [No]\n"
+"      -B, --bruteforce       : Bruteforce the WPS pin checksum digit [No]\n"
+"      -F, --force            : Force continue in spite of warnings   [No]\n"
 "      -S, --sequential       : Sequential pins (do not randomize)    [No]\n"
 "      -T, --test             : Test mode (do not inject any packets) [No]\n"
 "\n"

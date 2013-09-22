@@ -243,6 +243,15 @@ int get_start(struct global *G)
 	int	pin2div = (G->broken ? 1 : 10);
 	char	*line, *last = "00000000:00000000:0::\n";
 
+	char *oldf = malloc(strlen(G->warpath) + 23);
+	strcpy(oldf, G->warpath);
+	strcat(oldf, "/");
+	strcat(oldf, G->ssids);
+	strcat(oldf, ".run");
+	if ((rf = fopen(oldf, "r")) != NULL)
+		rename(oldf, G->runf);
+	free(oldf);
+
 	if ((rf = fopen(G->runf, "r")) == NULL) {
 		if ((rf = fopen(G->runf, "w")) != NULL) {
 			fprintf(rf, "# DO NOT MODIFY CONTENTS OF THIS FILE\n# '%s' (%s)\n", G->essid, G->ssids);

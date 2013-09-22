@@ -94,6 +94,7 @@ int main(int argc, char *argv[])
 	char	essids[33] = {0}, *essid = essids;
 	char	bssids[18] = {0};
 	char	hwmacs[18] = {0};
+	char	hexmac[13] = "000000000000";
 
 	char	*error;
 
@@ -663,10 +664,10 @@ int main(int argc, char *argv[])
 	if (G->random)
 		init_pins(G);
 
-	G->runf = malloc(strlen(G->warpath) + 23);
+	G->runf = malloc(strlen(G->warpath) + 18);
 	strcpy(G->runf, G->warpath);
 	strcat(G->runf, "/");
-	strcat(G->runf, G->ssids);
+	strcat(G->runf, hex(G->bssid, 6));
 	strcat(G->runf, ".run");
 
 	char	pinstr[9];

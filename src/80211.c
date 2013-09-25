@@ -172,7 +172,7 @@ int next_packet(struct global *G, uint8 type, uint8 subtype, uint8 *dest, uint8 
 
 	uint8	*pack;
 	int	len, fc = 0, time;
-printf("%3d = { %5d  %5d  %5d  %5d  %5d  }\n", pkt, times[pkt].user, times[pkt].def, times[pkt].count, times[pkt].avg, times[pkt].max);
+
 	gettimeofday(&begin, 0);
 
 	if (times[pkt].user)

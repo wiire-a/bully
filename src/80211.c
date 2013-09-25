@@ -166,15 +166,30 @@ uint8 *build_ietags(tag_t *tags[], int *tagl)
 
 
 int next_packet(struct global *G, uint8 type, uint8 subtype, uint8 *dest, uint8 *src,
-			struct timeval *timeout, int parse)
+			int pkt, int parse)
 {
+	struct timeval timeout, begin;
+
 	uint8	*pack;
-	int	len, fc = 0;
+	int	len, fc = 0, time;
+printf("%3d = { %5d  %5d  %5d  %5d  %5d  }\n", pkt, times[pkt].user, times[pkt].def, times[pkt].count, times[pkt].avg, times[pkt].max);
+	gettimeofday(&begin, 0);
+
+	if (times[pkt].user)
+		set_timer(&timeout, times[pkt].user);
+	else
+		if (G->suppress)
+			set_timer(&timeout, times[pkt].def);
+		else
+			set_timer(&timeout, times[pkt].avg + (times[pkt].avg>>3) + 5);
 
 	while (!ctrlc || START_EAPOL < G->state) {
 
-		if (check_timer(timeout))
+		if (check_timer(&timeout)) {
+			times[pkt].avg = (times[pkt].avg * times[pkt].count + times[pkt].max) / (times[pkt].count + 1);
+			times[pkt].count++;
 			return TIMEOUT;
+		};
 
 		if ((pack = (uint8*)pcap_next(G->pfd, G->phdr)) == 0)
 			continue;
@@ -196,6 +211,8 @@ int next_packet(struct global *G, uint8 type, uint8 subtype, uint8 *dest, uint8 
 			if (type!=MAC_TYPE_DATA || mac->subtype!=(subtype|MAC_ST_QOSDATA))
 				goto ck_deauth;
 
+		time = elapsed(&begin);
+
 		if (G->has_fcs && !G->nocheck) {
 			uint32 crc = ~crc32((u_char*)mac, len-rthl-4);
 			uint32 fcs = ((fcs_t*)(pack+len-4))->fcs;
@@ -209,6 +226,9 @@ int next_packet(struct global *G, uint8 type, uint8 subtype, uint8 *dest, uint8 
 					continue;
 			};
 		};
+
+		times[pkt].avg = (times[pkt].avg * times[pkt].count + time) / (times[pkt].count + 1);
+		times[pkt].count++;
 
 		if (parse)
 			return parse_packet(G->inp, pack, len, G->has_rth, G->has_fcs);
@@ -231,7 +251,6 @@ int next_packet(struct global *G, uint8 type, uint8 subtype, uint8 *dest, uint8 
 
 int send_packet(struct global *G, uint8 *pack, int len, int noack)
 {
-	struct timeval timer;
 	int result = SUCCESS;
 
 	mac_t *mac = (mac_t*)(pack+RTH_SIZE);
@@ -258,8 +277,7 @@ retry_snd:
 	};
 
 	if (G->use_ack && !noack) {
-		set_timer(&timer, G->acktime);
-		result = next_packet(G, MAC_TYPE_CTRL, MAC_ST_ACK, mac->adr2.addr, NULL_MAC, &timer, FALSE);
+		result = next_packet(G, MAC_TYPE_CTRL, MAC_ST_ACK, mac->adr2.addr, NULL_MAC, PKT_ACK, FALSE);
 		if (result == TIMEOUT) {
 			if (count++ < G->retries)
 				goto retry_snd;
@@ -274,17 +292,15 @@ retry_snd:
 void pcap_wait(struct global *G, int msdelay)
 {
 	int result = ~TIMEOUT;
-	struct timeval timer;
-	set_timer(&timer, msdelay);
+	times[PKT_NOP].user = times[PKT_NOP].def = msdelay;
 	while (!ctrlc && result != TIMEOUT)
-		result = next_packet(G, MAC_TYPE_RSVD, 0, BULL_MAC, BULL_MAC, &timer, FALSE);
+		result = next_packet(G, MAC_TYPE_RSVD, 0, BULL_MAC, BULL_MAC, PKT_NOP, FALSE);
 };
 
 
 int	reassoc(struct global *G)
 {
 	int result, count = 1;
-	struct timeval timer;
 
 	if (G->delay) {
 		pcap_wait(G, G->delay);
@@ -296,14 +312,13 @@ reassoc:
 	if (ctrlc)
 		return ctrlc;
 
-	set_timer(&timer, G->stdtime);
 	if (G->probe) {
 		result = send_packet(G, G->dprobe, G->reql, 1);
 		result = next_packet(G, MAC_TYPE_MGMT, MAC_ST_PROBE_RESP,
-						G->hwmac, G->bssid, &timer, TRUE);
+						G->hwmac, G->bssid, PKT_PR, TRUE);
 	} else
 		result = next_packet(G, MAC_TYPE_MGMT, MAC_ST_BEACON,
-						BCAST_MAC, G->bssid, &timer, TRUE);
+						BCAST_MAC, G->bssid, PKT_BEA, TRUE);
 
 	if (result == SUCCESS) {
 		tag_t *tag = find_tag(G->inp[F_PAY].data+BFP_SIZE, G->inp[F_PAY].size-BFP_SIZE,
@@ -362,8 +377,7 @@ reassoc:
 		return result;
 
 	G->state++;
-	set_timer(&timer, G->stdtime);
-	result = next_packet(G, MAC_TYPE_MGMT, MAC_ST_AUTH, G->hwmac, G->bssid, &timer, TRUE);
+	result = next_packet(G, MAC_TYPE_MGMT, MAC_ST_AUTH, G->hwmac, G->bssid, PKT_AUT, TRUE);
 	if (result != SUCCESS)
 		return result;
 	auth_t *auth = (auth_t*)(G->inp[F_PAY].data);
@@ -379,8 +393,7 @@ reassoc:
 		return result;
 
 	G->state++;
-	set_timer(&timer, G->stdtime);
-	result = next_packet(G, MAC_TYPE_MGMT, MAC_ST_ASSOC_RESP, G->hwmac, G->bssid, &timer, TRUE);
+	result = next_packet(G, MAC_TYPE_MGMT, MAC_ST_ASSOC_RESP, G->hwmac, G->bssid, PKT_ASN, TRUE);
 	if (result != SUCCESS)
 		return result;
 	resp_t *resp = (resp_t*)(G->inp[F_PAY].data);
@@ -398,7 +411,6 @@ int wpstran(struct global *G)
 {
 	enum wsc_op_code opcode;
 	enum wps_state state;
-	struct timeval timer;
 
 	int	result, quit = 0;
 	llc_t	*llc;
@@ -416,13 +428,9 @@ restart:
 
 read_id:
 	G->state++;
-	set_timer(&timer, G->stdtime);
-	result = next_packet(G, MAC_TYPE_DATA, MAC_ST_DATA, G->hwmac, G->bssid, &timer, TRUE);
-	if (result != SUCCESS) {
-		if (result == TIMEOUT)
-			goto restart;
+	result = next_packet(G, MAC_TYPE_DATA, MAC_ST_DATA, G->hwmac, G->bssid, PKT_EID, TRUE);
+	if (result != SUCCESS)
 		return result;
-	};
 
 	if (!G->inp[F_PAY].list || G->inp[F_EAP].size<EAP_SIZE) {
 	eap_err:
@@ -447,8 +455,8 @@ read_mx:
 	G->state++;
 	state = G->wdata->state;
 
-	set_timer(&timer, (state==RECV_M1||state==RECV_M3||G->m57nack!=0 ? G->m13time : G->stdtime));
-	result = next_packet(G, MAC_TYPE_DATA, MAC_ST_DATA, G->hwmac, G->bssid, &timer, TRUE);
+	result = next_packet(G, MAC_TYPE_DATA, MAC_ST_DATA, G->hwmac, G->bssid,
+				((G->state-10)>>1)+6, TRUE);
 
 	if (result != SUCCESS) switch (result) {
 		case FCSFAIL:	return result;
@@ -534,9 +542,8 @@ eapfail:
 	if (quit) {
 		if (G->eapfail) {
 			send_packet(G, eapolf, sizeof(eapolf)-1, 0);
-			set_timer(&timer, G->stdtime + G->stdtime);
 			do {	result = next_packet(G, MAC_TYPE_DATA, MAC_ST_DATA,
-							G->hwmac, G->bssid, &timer, TRUE);
+							G->hwmac, G->bssid, PKT_EAP, TRUE);
 			} while (result != EAPFAIL && result != TIMEOUT);
 		};
 		G->state--;

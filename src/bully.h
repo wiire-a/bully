@@ -38,7 +38,7 @@ char hx[16] = "0123456789abcdef";
 char _xbuf[HEXSZ];
 char *hex(void *p, int len);
 
-#define MAX_FCS_FAIL	10
+#define MAX_FCS_FAIL	3
 #define MAX_RETRIES	2
 #define LOCK_WAIT_SECS	43
 
@@ -89,6 +89,40 @@ char *state[] = { "Last State",
 
 int map[17] = {0,0,0,0,0,0,0,0,0,0,4,5,7,8,9,10,11};
 
+#define	PKT_ACK	0
+#define	PKT_PR	1
+#define	PKT_BEA	2
+#define	PKT_AUT	3
+#define	PKT_ASN	4
+#define	PKT_EID	5
+#define	PKT_M1	6
+#define	PKT_M3	7
+#define	PKT_M5	8
+#define	PKT_M7	9
+#define	PKT_EAP	10
+#define	PKT_NOP	11
+
+struct {
+	int	user;
+	int	def;
+	int	count;
+	int	avg;
+	int	max;
+} times[] = {
+	{0,   15,  1,   50,   50},       /* ACK */
+	{0,  275,  1, 1350, 1350},       /* PR */
+	{0,  275,  1, 1350, 1350},       /* BEA */
+	{0,   15,  1,   50,   50},       /* AUT */
+	{0,   15,  1,   50,   50},       /* ASN */
+	{0,  295,  1, 1450, 1450},       /* EID */
+	{0, 3595,  1,17950,17950},       /* M1 */
+	{0, 1845,  1,  920,  920},       /* M3 */
+	{0,  355,  1, 1750, 1750},       /* M5 */
+	{0, 1085,  1, 5400, 5400},       /* M7 */
+	{0,  105,  1,  100,  100},       /* EAP */
+	{0,    0,  1,    0,    0},       /* NOP */
+};
+
 struct global {
 	uint8	*ifname;
 	char	*essid;
@@ -113,6 +147,7 @@ struct global {
 	int	fixed;
 	int	force;
 	int	random;
+	int	suppress;
 	int	ignore;
 	int	verbose;
 	int	has_rth;
@@ -193,10 +228,10 @@ char usage[] =
 "\n"
 "  Advanced arguments:\n"
 "\n"
-"      -a, --acktime N        : Acknowledgement and pcap timeout (ms) [25]\n"
+"      -a, --acktime N        : Deprecated                          [Auto]\n"
 "      -r, --retries N        : Resend packets N times when not acked  [2]\n"
-"      -m, --m13time N        : M1/M3/Initial beacon timeout (ms)   [2000]\n"
-"      -t, --timeout N        : Timeout for Auth/Assoc/Id/M5/M7 (ms) [200]\n"
+"      -m, --m13time N        : Deprecated                          [Auto]\n"
+"      -t, --timeout N        : Deprecated                          [Auto]\n"
 "      -1, --pin1delay M,N    : Delay M seconds every Nth nack at M5 [0,1]\n"
 "      -2, --pin2delay M,N    : Delay M seconds every Nth nack at M7 [5,1]\n"
 "      -A, --noacks           : Disable ACK check for sent packets    [No]\n"
@@ -209,6 +244,7 @@ char usage[] =
 "      -P, --probe            : Use probe request for nonbeaconing AP [No]\n"
 "      -R, --radiotap         : Assume radiotap headers are present [Auto]\n"
 "      -W, --windows7         : Masquerade as a Windows 7 registrar   [No]\n"
+"      -Z, --suppress         : Suppress packet throttling algorithm  [No]\n"
 "      -h, --help             : Display this help information\n\n%s";
 
 

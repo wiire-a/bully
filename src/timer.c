@@ -38,3 +38,13 @@ static inline int check_timer(struct timeval *tv)
 };
 
 
+static inline int elapsed(struct timeval *then)
+{
+	struct timeval now;
+	gettimeofday(&now, 0);
+
+	if (now.tv_usec < then->tv_usec)
+		return ((now.tv_sec - 1) - then->tv_sec)*1000 + (now.tv_usec+1000000 - then->tv_usec)/1000;
+	else
+		return (now.tv_sec - then->tv_sec)*1000 + (now.tv_usec - then->tv_usec)/1000;
+};

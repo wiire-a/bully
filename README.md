@@ -87,10 +87,10 @@ Optional arguments:
   -S, --sequential       : Sequential pins (do not randomize)    [No]
   -T, --test             : Test mode (do not inject any packets) [No]
 Advanced arguments:
-  -a, --acktime N        : Acknowledgement and pcap timeout (ms) [25]
+  -a, --acktime N        : Deprecated                          [Auto]
   -r, --retries N        : Resend packets N times when not acked  [2]
-  -m, --m13time N        : M1/M3/Initial beacon timeout (ms)   [2000]
-  -t, --timeout N        : Timeout for Auth/Assoc/Id/M5/M7 (ms) [200]
+  -m, --m13time N        : Deprecated                          [Auto]
+  -t, --timeout N        : Deprecated                          [Auto]
   -1, --pin1delay M[,N]  : Delay M seconds every Nth nack at M5 [0,1]
   -2, --pin2delay M[,N]  : Delay M seconds every Nth nack at M7 [5,1]
   -A, --noacks           : Disable ACK check for sent packets    [No]
@@ -188,9 +188,7 @@ Advanced arguments:
 
       -a, --acktime N
 
-		This timeout period is used when waiting for acknowledgements for sent packets, and is also
-		used as the pcap timeout value. Default is 25 ms. Increase this value on high traffic channels,
-		or if you see numerous "sent packet not acknowledged" messages.
+		Deprecated. All timings are handled automatically.
 
       -r, --retries N
 
@@ -200,15 +198,11 @@ Advanced arguments:
 
       -m, --m13time N
 
-		Timeout period for the first beacon from the AP, and WPS messages M1 and M3. Default is 2000 ms.
-		This is a relatively long period, on the order of 100x longer than an acknowledgement, because
-		these messages involve extensive computation on the AP. Increase this value for slower (or
-		busier) access points.
+		Deprecated. All timings are handled automatically.
 
       -t, --timeout N
 
-		Standard timeout period for all remaining packets types (authentication, association, request
-		identity, M5 and M7).  Default is 200 ms. Increase on busy channels/AP's.
+		Deprecated. All timings are handled automatically.
 
       -1, --pin1delay M[,N]
 

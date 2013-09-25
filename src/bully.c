@@ -202,11 +202,12 @@ int main(int argc, char *argv[])
 			{"sequential",	0,	0,	'S'},
 			{"test",	0,	0,	'T'},
 			{"windows7",	0,	0,	'W'},
+			{"suppress",	0,	0,	'Z'},
 			{"help",	0,	0,	'h'},
 			{0,		0,	0,	 0 }
 		};
 
-		int option = getopt_long( argc, argv, "a:b:c:e:i:l:m:p:r:s:t:v:w:1:2:5ABCDEFLMNPRSTWh",
+		int option = getopt_long( argc, argv, "a:b:c:e:i:l:m:p:r:s:t:v:w:1:2:5ABCDEFLMNPRSTWZh",
 					long_options, &option_index );
 
 		if( option < 0 ) break;
@@ -354,6 +355,9 @@ int main(int argc, char *argv[])
 			case 'W' :
 				G->win7 = 1;
 				break;
+			case 'Z' :
+				G->suppress = 1;
+				break;
 			case 'h' :
 				goto usage_err;
 			case '?' :
@@ -463,17 +467,15 @@ int main(int argc, char *argv[])
 			(G->ssids ? G->ssids : G->essid), G->schan);
 
 	while (1) {
-		set_timer(&timer, G->m13time);
-
 	ap_beacon:
 		if (G->probe) {
 			if (!G->test)
 				result = send_packet(G, G->dprobe, G->reql, 1);
 			result = next_packet(G, MAC_TYPE_MGMT, MAC_ST_PROBE_RESP,
-							G->hwmac, G->bssid, &timer, TRUE);
+							G->hwmac, G->bssid, PKT_PR, TRUE);
 		} else
 			result = next_packet(G, MAC_TYPE_MGMT, MAC_ST_BEACON,
-							BCAST_MAC, G->bssid, &timer, TRUE);
+							BCAST_MAC, G->bssid, PKT_BEA, TRUE);
 
 		if (result == SUCCESS) {
 			tag = (tag_t*)(G->inp[F_PAY].data + BFP_SIZE);

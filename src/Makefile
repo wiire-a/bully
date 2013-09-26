@@ -10,7 +10,7 @@ CFLAGS	+= -I$(W_ROOT)/wps/ -I$(W_ROOT)/crypto/ -I$(W_ROOT)/common/
 
 LDFLAGS += -lpcap -lssl -lcrypto
 
-HDRS	= $(W_NAME).h 80211.h frame.h iface.h bswap.h
+HDRS	= $(W_NAME).h 80211.h frame.h iface.h bswap.h version.h
 SRCS	= $(W_NAME).c 80211.c frame.c iface.c crc32.c timer.c utils.c
 
 all: $(W_NAME)

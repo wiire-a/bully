@@ -86,6 +86,7 @@ void sigint_h(int signal) { signm = signal; ctrlc = 1; };
 #include "frame.c"
 #include "iface.c"
 
+#include "version.h"
 
 int main(int argc, char *argv[])
 {
@@ -94,7 +95,6 @@ int main(int argc, char *argv[])
 	char	essids[33] = {0}, *essid = essids;
 	char	bssids[18] = {0};
 	char	hwmacs[18] = {0};
-	char	hexmac[13] = "000000000000";
 
 	char	*error;
 
@@ -110,6 +110,8 @@ int main(int argc, char *argv[])
 	struct stat wstat;
 
 	FILE	*rf;
+
+	printf("bully %s - WPS vulnerability assessment utility\n", VERSION);
 
 	srandom(time(NULL));
 
@@ -201,13 +203,14 @@ int main(int argc, char *argv[])
 			{"radiotap",	0,	0,	'R'},
 			{"sequential",	0,	0,	'S'},
 			{"test",	0,	0,	'T'},
+			{"version",	0,	0,	'V'},
 			{"windows7",	0,	0,	'W'},
 			{"suppress",	0,	0,	'Z'},
 			{"help",	0,	0,	'h'},
 			{0,		0,	0,	 0 }
 		};
 
-		int option = getopt_long( argc, argv, "a:b:c:e:i:l:m:p:r:s:t:v:w:1:2:5ABCDEFLMNPRSTWZh",
+		int option = getopt_long( argc, argv, "a:b:c:e:i:l:m:p:r:s:t:v:w:1:2:5ABCDEFLMNPRSTVWZh",
 					long_options, &option_index );
 
 		if( option < 0 ) break;
@@ -220,6 +223,7 @@ int main(int argc, char *argv[])
 					snprintf(G->error, 256, "Bad packet timeout number -- %s\n", optarg);
 					goto usage_err;
 				};
+				printf("Deprecated option --acktime (-a) ignored\n");
 				break;
 			case 'b' :
 				if (get_mac(optarg, G->bssid) != 0) {
@@ -251,6 +255,7 @@ int main(int argc, char *argv[])
 					snprintf(G->error, 256, "Bad M1/M3 timeout number -- %s\n", optarg);
 					goto usage_err;
 				};
+				printf("Deprecated option --m13time (-m) ignored\n");
 				break;
 			case 'p' :
 				if (get_int(optarg, &G->pinstart) != 0 || 99999999 < G->pinstart) {
@@ -275,6 +280,7 @@ int main(int argc, char *argv[])
 					snprintf(G->error, 256, "Bad timeout number -- %s\n", optarg);
 					goto usage_err;
 				};
+				printf("Deprecated option --timeout (-t) ignored\n");
 				break;
 			case 'v' :
 				if (get_int(optarg, &G->verbose) != 0 || G->verbose < 1 || 3 < G->verbose) {
@@ -352,6 +358,9 @@ int main(int argc, char *argv[])
 			case 'T' :
 				G->test = 1;
 				break;
+			case 'V' :
+				printf("%s\n",VERSION);
+				exit(0);
 			case 'W' :
 				G->win7 = 1;
 				break;

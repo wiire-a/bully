@@ -228,10 +228,10 @@ char usage[] =
 "\n"
 "  Advanced arguments:\n"
 "\n"
-"      -a, --acktime N        : Deprecated                          [Auto]\n"
+"      -a, --acktime N        : Deprecated/ignored                  [Auto]\n"
 "      -r, --retries N        : Resend packets N times when not acked  [2]\n"
-"      -m, --m13time N        : Deprecated                          [Auto]\n"
-"      -t, --timeout N        : Deprecated                          [Auto]\n"
+"      -m, --m13time N        : Deprecated/ignored                  [Auto]\n"
+"      -t, --timeout N        : Deprecated/ignored                  [Auto]\n"
 "      -1, --pin1delay M,N    : Delay M seconds every Nth nack at M5 [0,1]\n"
 "      -2, --pin2delay M,N    : Delay M seconds every Nth nack at M7 [5,1]\n"
 "      -A, --noacks           : Disable ACK check for sent packets    [No]\n"
@@ -245,6 +245,7 @@ char usage[] =
 "      -R, --radiotap         : Assume radiotap headers are present [Auto]\n"
 "      -W, --windows7         : Masquerade as a Windows 7 registrar   [No]\n"
 "      -Z, --suppress         : Suppress packet throttling algorithm  [No]\n"
+"      -V, --version          : Print version info and exit\n"
 "      -h, --help             : Display this help information\n\n%s";
 
 

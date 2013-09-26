@@ -111,8 +111,6 @@ int main(int argc, char *argv[])
 
 	FILE	*rf;
 
-	printf("bully %s - WPS vulnerability assessment utility\n", VERSION);
-
 	srandom(time(NULL));
 
 	struct global *G;
@@ -428,6 +426,8 @@ int main(int argc, char *argv[])
 			return 8;
 		};
 	fmt_mac(hwmacs, G->hwmac);
+
+	vprint("[!] Bully %s - WPS vulnerability assessment utility\n", VERSION);
 
 	if ((error = init_chans(G)) != NULL) {
 		snprintf(G->error, 256, "Bad channel number or list -- %s\n", error);

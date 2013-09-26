@@ -87,10 +87,10 @@ Optional arguments:
   -S, --sequential       : Sequential pins (do not randomize)    [No]
   -T, --test             : Test mode (do not inject any packets) [No]
 Advanced arguments:
-  -a, --acktime N        : Deprecated                          [Auto]
+  -a, --acktime N        : Deprecated/ignored                  [Auto]
   -r, --retries N        : Resend packets N times when not acked  [2]
-  -m, --m13time N        : Deprecated                          [Auto]
-  -t, --timeout N        : Deprecated                          [Auto]
+  -m, --m13time N        : Deprecated/ignored                  [Auto]
+  -t, --timeout N        : Deprecated/ignored                  [Auto]
   -1, --pin1delay M[,N]  : Delay M seconds every Nth nack at M5 [0,1]
   -2, --pin2delay M[,N]  : Delay M seconds every Nth nack at M7 [5,1]
   -A, --noacks           : Disable ACK check for sent packets    [No]
@@ -103,6 +103,7 @@ Advanced arguments:
   -P, --probe            : Use probe request for nonbeaconing AP [No]
   -R, --radiotap         : Assume radiotap headers are present [Auto]
   -W, --windows7         : Masquerade as a Windows 7 registrar   [No]
+  -V, --version          : Print version info and exit
   -h, --help             : Display this help information
 </pre></code>
 
@@ -188,7 +189,7 @@ Advanced arguments:
 
       -a, --acktime N
 
-		Deprecated. All timings are handled automatically.
+		Deprecated. Packet timings are throttled automatically. Will be removed in future revision.
 
       -r, --retries N
 
@@ -198,11 +199,11 @@ Advanced arguments:
 
       -m, --m13time N
 
-		Deprecated. All timings are handled automatically.
+		Deprecated. Packet timings are throttled automatically. Will be removed in future revision.
 
       -t, --timeout N
 
-		Deprecated. All timings are handled automatically.
+		Deprecated. Packet timings are throttled automatically. Will be removed in future revision.
 
       -1, --pin1delay M[,N]
 
@@ -267,6 +268,10 @@ Advanced arguments:
       -W, --windows7
 
 		Masquerade as a Windows 7 registrar.
+
+      -V, --version
+
+		Print version information to standard output and exit.
 
       -h, --help
 

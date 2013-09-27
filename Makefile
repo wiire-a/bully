@@ -1,12 +1,6 @@
 include $(TOPDIR)/rules.mk
 
-PKG_NAME:=bully
-PKG_VERSION:=1.1
-PKG_RELEASE:=1
-
-#PKG_SOURCE:=$(PKG_NAME)-$(PKG_VERSION).tar.gz
-#PKG_SOURCE_URL:=
-#PKG_MD5SUM:=
+include version.mk
 
 include $(INCLUDE_DIR)/package.mk
 

@@ -109,7 +109,7 @@ int main(int argc, char *argv[])
 	struct sigaction sigact = {0};
 	struct stat wstat;
 
-	FILE	*rf;
+	FILE	*rf, *of;
 
 	srandom(time(NULL));
 
@@ -132,6 +132,7 @@ int main(int argc, char *argv[])
 		__vp = malloc(__vs);
 		if (!__vp)
 			goto mem_err;
+		__vf = stdout;
 
 		G->inp = f_init();
 		if (!G->inp)
@@ -179,6 +180,7 @@ int main(int argc, char *argv[])
 			{"index",	1,	0,	'i'},
 			{"lockwait",	1,	0,	'l'},
 			{"m13time",	1,	0,	'm'},
+			{"outfile",	1,	0,	'o'},
 			{"pin",		1,	0,	'p'},
 			{"retries",	1,	0,	'r'},
 			{"source",	1,	0,	's'},
@@ -208,7 +210,7 @@ int main(int argc, char *argv[])
 			{0,		0,	0,	 0 }
 		};
 
-		int option = getopt_long( argc, argv, "a:b:c:e:i:l:m:p:r:s:t:v:w:1:2:5ABCDEFLMNPRSTVWZh",
+		int option = getopt_long( argc, argv, "a:b:c:e:i:l:m:o:p:r:s:t:v:w:1:2:5ABCDEFLMNPRSTVWZh",
 					long_options, &option_index );
 
 		if( option < 0 ) break;
@@ -254,6 +256,14 @@ int main(int argc, char *argv[])
 					goto usage_err;
 				};
 				printf("Deprecated option --m13time (-m) ignored\n");
+				break;
+			case 'o' :
+				if ((of = fopen(optarg, "w")) != NULL)
+					__vf = of;
+				else {
+					snprintf(G->error, 256, "Can't open output file -- %s\n", optarg);
+					goto usage_err;
+				};
 				break;
 			case 'p' :
 				if (get_int(optarg, &G->pinstart) != 0 || 99999999 < G->pinstart) {
@@ -444,9 +454,9 @@ int main(int argc, char *argv[])
 	if (-1 < G->pindex)
 		G->pinstart = G->pindex;
 
-	G->pfd = pcap_open_live(G->ifname, 65536, 1, G->acktime, G->perr);
+	G->pfd = pcap_open_live(G->ifname, 65536, 1, 5, G->perr);
 	pcap_close(G->pfd);
-	G->pfd = pcap_open_live(G->ifname, 65536, 1, G->acktime, G->perr);
+	G->pfd = pcap_open_live(G->ifname, 65536, 1, 5, G->perr);
 	if (!G->pfd) {
 		fprintf(stderr, "%s\n", G->perr);
 		return 3;
@@ -682,7 +692,7 @@ int main(int argc, char *argv[])
 	strcat(G->runf, ".run");
 
 	char	pinstr[9];
-	int	pincount = 0;
+	int	pincount = 0, savecount = 0;
 	int	pinmax = (G->broken ? 100000000 : 10000000);
 	int	pin2max = (G->broken ? 10000 : 1000);
 	int	pin2div = (G->broken ? 1 : 10);
@@ -774,6 +784,19 @@ int main(int argc, char *argv[])
 								hour, mins, secs);
 
 				last = now.tv_sec;
+
+				if ((++savecount & 0x01) == 0) {
+					if ((rf = fopen(G->runf, "a")) != NULL) {
+						gettimeofday(&timer, NULL);
+						strftime(G->error, 256, "%Y-%m-%d %H:%M:%S", localtime(&timer.tv_sec));
+						fprintf(rf, "# session in progress at %s\n%08d:%08d:%01d:%s:\n",
+								G->error, (G->broken ? pindex : pindex*10),
+								(G->broken ? pin : pin*10), G->broken, G->wdata->cred.key);
+						fclose(rf);
+						fprintf(stderr, "Saving session to '%s'\n", G->runf);
+					} else
+						fprintf(stderr, "WARNING : Couldn't save session to '%s'\n", G->runf);
+				};
 			};
 
 			if (result == KEY1NAK) {
@@ -854,4 +877,3 @@ int main(int argc, char *argv[])
 	return result;
 
 };
-

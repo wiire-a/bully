@@ -77,6 +77,7 @@ Optional arguments:
   -c, --channel N[,N...] : Channel number of AP, or list to hop [b/g]
   -i, --index N          : Starting pin index (7 or 8 digits)  [Auto]
   -l, --lockwait N       : Seconds to wait if the AP locks WPS   [43]
+  -o, --outfile file     : Output file for messages          [stdout]
   -p, --pin N            : Starting pin number (7 or 8 digits) [Auto]
   -s, --source macaddr   : Source (hardware) MAC address      [Probe]
   -v, --verbosity N      : Verbosity level 1-3, 1 is quietest     [3]
@@ -103,6 +104,7 @@ Advanced arguments:
   -P, --probe            : Use probe request for nonbeaconing AP [No]
   -R, --radiotap         : Assume radiotap headers are present [Auto]
   -W, --windows7         : Masquerade as a Windows 7 registrar   [No]
+  -Z, --suppress         : Suppress packet throttling algorithm  [No]
   -V, --version          : Print version info and exit
   -h, --help             : Display this help information
 </pre></code>
@@ -131,6 +133,11 @@ Advanced arguments:
 		Number of seconds to wait when an AP locks WPS. Most AP's will lock out for 5 minutes, so
 		the default value is 43 seconds. This will cause bully to sleep 7 times during a lockout
 		period for a total of 301 seconds.
+
+      -o, --output file
+
+		By default, messages are printed to the standard output. Use this option to send output 
+		to the specified file instead.
 
       -p, --pin N
 
@@ -264,6 +271,11 @@ Advanced arguments:
 
 		Assume radiotap headers are present in received packets. This is useful in cases where presence
 		of radiotap headers is incorrectly reported or detected.
+
+      -Z, --suppress
+
+		Suppress automatic timimg algorithm and instead use default timings for received packets. NOT
+		RECOMMENDED.
 
       -W, --windows7
 

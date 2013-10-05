@@ -31,7 +31,8 @@ typedef struct wpabuf		wpab_t;
 char	*__vp;
 #define	__vs 1024
 int	__vb = 3;
-#define	vprint(...) { snprintf(__vp,__vs,__VA_ARGS__); if ((__vp[1]=='+'?3:__vp[1]=='!'?2:1)<=__vb) fputs(__vp,stdout); }
+FILE*	__vf;
+#define	vprint(...) { snprintf(__vp,__vs,__VA_ARGS__); if ((__vp[1]=='+'?3:__vp[1]=='!'?2:1)<=__vb) fputs(__vp,__vf); }
 
 char hx[16] = "0123456789abcdef";
 #define HEXSZ 2049
@@ -109,11 +110,11 @@ struct {
 	int	avg;
 	int	max;
 } times[] = {
-	{0,   15,  1,   50,   50},       /* ACK */
+	{0,   50,  1,   50,   50},       /* ACK */
 	{0,  275,  1, 1350, 1350},       /* PR */
 	{0,  275,  1, 1350, 1350},       /* BEA */
-	{0,   15,  1,   50,   50},       /* AUT */
-	{0,   15,  1,   50,   50},       /* ASN */
+	{0,   50,  1,   50,   50},       /* AUT */
+	{0,   50,  1,   50,   50},       /* ASN */
 	{0,  295,  1, 1450, 1450},       /* EID */
 	{0, 3595,  1,17950,17950},       /* M1 */
 	{0, 1845,  1, 9200, 9200},       /* M3 */
@@ -216,6 +217,7 @@ char usage[] =
 "      -c, --channel N[,N...] : Channel number of AP, or list to hop [b/g]\n"
 "      -i, --index N          : Starting pin index (7 or 8 digits)  [Auto]\n"
 "      -l, --lockwait N       : Seconds to wait if the AP locks WPS   [43]\n"
+"      -o, --outfile file     : Output file for messages          [stdout]\n"
 "      -p, --pin N            : Starting pin number (7 or 8 digits) [Auto]\n"
 "      -s, --source macaddr   : Source (hardware) MAC address      [Probe]\n"
 "      -v, --verbosity N      : Verbosity level 1-3, 1 is quietest     [3]\n"

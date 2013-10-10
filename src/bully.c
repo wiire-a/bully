@@ -618,8 +618,7 @@ int main(int argc, char *argv[])
 	vlen = tag->len - 4;
 	vt = find_vtag(vtag, vlen, TAG_WPS_STATE, 1);
 	if (!vt || vt->data[0] != TAG_WPS_CONFIG) {
-		vprint("[X] Beacon information element indicates WPS is not configured\n");
-		return 5;
+		vprint("[!] Beacon information element indicates WPS is not configured\n");
 	};
 	vt = find_vtag(vtag, vlen, TAG_WPS_APLOCK, 1);
 	if (vt && vt->data[0] == TAG_WPS_LOCKED) {

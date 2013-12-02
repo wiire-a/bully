@@ -144,6 +144,7 @@ int main(int argc, char *argv[])
 		G->hop = BG_CHANS;
 		G->has_fcs = 1;
 		G->use_ack = 1;
+		G->eapmode = 1;
 		G->retries = MAX_RETRIES;
 		G->random = 1;
 		G->acktime = ACKTIME;
@@ -350,6 +351,8 @@ int main(int argc, char *argv[])
 				break;
 			case 'M' :
 				G->m57nack = 1;
+				times[PKT_M5].avg = times[PKT_M5].max = times[PKT_M5].def * 2;
+				times[PKT_M7].avg = times[PKT_M7].max = times[PKT_M7].def * 2;
 				break;
 			case 'N' :
 				G->has_fcs = 0;
@@ -691,11 +694,24 @@ int main(int argc, char *argv[])
 	strcat(G->runf, ".run");
 
 	char	pinstr[9];
-	int	pincount = 0, savecount = 0;
+	int	pincount, savecount;
 	int	pinmax = (G->broken ? 100000000 : 10000000);
 	int	pin2max = (G->broken ? 10000 : 1000);
 	int	pin2div = (G->broken ? 1 : 10);
-	int	pin, pindex = get_start(G);
+	int	pin, pindex, phold = get_start(G);
+
+	sigact.sa_handler = sigint_h;
+	sigaction(SIGHUP,  &sigact, 0);
+	sigaction(SIGINT,  &sigact, 0);
+	sigaction(SIGPIPE, &sigact, 0);
+	sigaction(SIGALRM, &sigact, 0);
+	sigaction(SIGTERM, &sigact, 0);
+	sigaction(SIGCHLD, &sigact, 0);
+
+restart:
+	G->restart = 0;
+	pincount = savecount = 0;
+	pindex = phold;
 
 	if (-1 < G->pinstart)
 		pindex = G->pinstart;
@@ -713,16 +729,10 @@ int main(int argc, char *argv[])
 		vprint("[+] Index of starting pin number is '%07d'\n", pindex);
 	};
 
-	sigact.sa_handler = sigint_h;
-	sigaction(SIGHUP,  &sigact, 0);
-	sigaction(SIGINT,  &sigact, 0);
-	sigaction(SIGPIPE, &sigact, 0);
-	sigaction(SIGALRM, &sigact, 0);
-	sigaction(SIGTERM, &sigact, 0);
-	sigaction(SIGCHLD, &sigact, 0);
-
 	struct timeval start, now;
-	int time, last, secs, hour, mins, i, d, key1hit = 0;
+	int time, last, secs, hour, mins, i, d, key1hit;
+	key1hit = 0;
+
 	gettimeofday(&start, 0);
 	last = start.tv_sec;
 
@@ -749,6 +759,9 @@ int main(int argc, char *argv[])
 		result = wpstran(G);
 
 		wps_registrar_expire_pins(G->wdata->wps->registrar);
+
+		if (G->restart)
+			goto restart;
 
 		if (result == SUCCESS)
 			break;

@@ -461,7 +461,22 @@ read_mx:
 	if (result != SUCCESS) switch (result) {
 		case FCSFAIL:	return result;
 		case DEORDIS:	return result;
-		case EAPFAIL:	quit = result; G->state++; goto eapfail;
+		case EAPFAIL:	eap = (eap_t*)G->inp[F_EAP].data;
+				eapolf[G->eapidx] = eap->id;
+				if (G->eapmode)
+					if (state==RECV_M5) {
+						quit = KEY1NAK;
+						G->eapflag = 1;
+					} else
+						if (state==RECV_M7) {
+							quit = KEY2NAK;
+							G->eapflag = 1;
+						} else
+							quit = result;
+				else
+					quit = result;
+				G->state++;
+				goto eapfail;
 		case TIMEOUT:	quit = result;
 				if (G->m57nack)
 					quit = (state==RECV_M5 ? KEY1NAK : state==RECV_M7 ? KEY2NAK : result);
@@ -491,9 +506,16 @@ read_mx:
 				else
 					G->dcount = 0;
 
-			if (tag->data[0] == MSG_NACK)
+			if (tag->data[0] == MSG_NACK) {
 				quit = (state==RECV_M5 ? KEY1NAK : state==RECV_M7 ? KEY2NAK : WPSFAIL);
-			else
+				if (quit != WPSFAIL) {
+					G->eapmode = 0;
+					if (G->eapflag) {
+						G->eapflag = 0;
+						G->restart = 1;
+					};
+				};
+			} else
 				if (tag->data[0] != map[G->state]) {
 					vprint("[!] Received M2D or out of sequence WPS Message\n");
 					G->wdata->state = SEND_WSC_NACK;

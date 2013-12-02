@@ -145,6 +145,9 @@ struct global {
 	int	probe;
 	int	win7;
 	int	eapfail;
+	int	eapmode;
+	int	eapflag;
+	int	restart;
 	int	fixed;
 	int	force;
 	int	random;

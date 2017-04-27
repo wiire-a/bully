@@ -1,6 +1,7 @@
 /*
     bully - retrieve WPA/WPA2 passphrase from a WPS-enabled AP
 
+	Copyright (C) 2017  wiire         <wi7ire@gmail.com>
     Copyright (C) 2012  Brian Purcell <purcell.briand@gmail.com>
 
     This program is free software: you can redistribute it and/or modify
@@ -81,6 +82,7 @@
 #include "frame.h"
 #include "iface.h"
 #include "bully.h"
+#include "pdust.h"
 
 sig_atomic_t ctrlc = 0;
 sig_atomic_t signm = 0;
@@ -619,6 +621,15 @@ int main(int argc, char *argv[])
 	tags[tn++] = (tag_t*)MS_WPS_TAG;
 	tags[tn] = NULL;
 
+	{ /* Get vendor OUI from frame when present */
+		uint8 oui[3];
+		if (get_oui_vendor(tag, tlen, oui)) {
+			char vendor[OUI_STR_LEN];
+			memcpy(vendor, get_vendor(oui), OUI_STR_LEN);
+			vprint("[+] Vendor '%s' (%02x:%02x:%02x)\n", vendor, oui[0], oui[1], oui[2]);
+		};
+	}
+
 	if ((tag = find_tag(tag, tlen, TAG_VEND, 0, MS_WPS_ID, 4)) == NULL) {
 		vprint("[X] The AP doesn't appear to be WPS enabled (no WPS IE)\n");
 		return 5;
@@ -633,6 +644,15 @@ int main(int argc, char *argv[])
 	vt = find_vtag(vtag, vlen, TAG_WPS_APLOCK, 1);
 	if (vt && vt->data[0] == TAG_WPS_LOCKED) {
 		vprint("[!] Beacon information element indicates WPS is locked\n");
+	};
+	if (vt = find_vtag(vtag, vlen, TAG_WPS_V_EXT, 2)) {
+		uint8 *v2 = (uint8 *)(vt->data + 3);
+		if (*v2++ == TAG_WPS_V2)
+			if (*v2++ == 1)
+				vprint("[+] WPS version '%u.%u'\n", *v2 >> 4, *v2 & 0x0f);
+	} else {
+		/* Assume version 1 (some APs may report version 0) */
+		vprint("[+] WPS version '1.0'\n");
 	};
 
 	int msgl;  uint8 *msg = build_ietags(tags, &msgl);

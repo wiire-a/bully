@@ -250,13 +250,15 @@ typedef struct ie_tag tag_t;
 
 struct ie_vtag {
 	uint16		id;
-#define	TAG_WPS_VERSION	"\x10\x4A"
 #define	TAG_WPS_STATE	"\x10\x44"
+#define	TAG_WPS_V_EXT	"\x10\x49"
+#define	TAG_WPS_VERSION	"\x10\x4A"
 #define	TAG_WPS_APLOCK	"\x10\x57"
 	uint16		len;
 	uint8		data[];
-#define	TAG_WPS_CONFIG	2
+#define	TAG_WPS_V2		0
 #define	TAG_WPS_LOCKED	1
+#define	TAG_WPS_CONFIG	2
 };
 typedef struct ie_vtag vtag_t;
 #define	VTAG_SIZE (sizeof(vtag_t))

@@ -250,9 +250,19 @@ typedef struct ie_tag tag_t;
 
 struct ie_vtag {
 	uint16		id;
+#define TAG_WPS_CONF_M	"\x10\x08"
+#define TAG_WPS_D_NAME  "\x10\x11"
+#define TAG_WPS_PASSWD	"\x10\x12"
+#define TAG_WPS_MANU	"\x10\x21"
+#define TAG_WPS_M_NAME	"\x10\x23"
+#define TAG_WPS_M_NUM	"\x10\x24"
+#define TAG_WPS_BANDS	"\x10\x3c"
+#define TAG_WPS_SERIAL	"\x10\x42"
 #define	TAG_WPS_STATE	"\x10\x44"
-#define	TAG_WPS_V_EXT	"\x10\x49"
+#define TAG_WPS_UUID_E	"\x10\x47"
+#define TAG_WPS_V_EXT	"\x10\x49"
 #define	TAG_WPS_VERSION	"\x10\x4A"
+#define TAG_WPS_D_TYPE	"\x10\x54"
 #define	TAG_WPS_APLOCK	"\x10\x57"
 	uint16		len;
 	uint8		data[];
@@ -263,6 +273,28 @@ struct ie_vtag {
 typedef struct ie_vtag vtag_t;
 #define	VTAG_SIZE (sizeof(vtag_t))
 
+/* Device password IDs */
+#define WPS_ID_PIN		"\x00\x00"
+#define WPS_ID_USER		"\x00\x01"
+#define WPS_ID_MACHINE	"\x00\x02"
+#define WPS_ID_REKEY	"\x00\x03"
+#define WPS_ID_PBC		"\x00\x04"
+#define WPS_ID_REG		"\x00\x05"
+
+/* Configuration methods */
+#define WPS_CONF_USB			(1 << 0)
+#define WPS_CONF_ETHERNET		(1 << 1)
+#define WPS_CONF_LABEL			(1 << 2)
+#define WPS_CONF_DISPLAY		(1 << 3)
+#define WPS_CONF_EXT_NFC		(1 << 4)
+#define WPS_CONF_INT_NFC		(1 << 5)
+#define WPS_CONF_NFC_IF			(1 << 6)
+#define WPS_CONF_PUSH_BTN		(1 << 7)
+#define WPS_CONF_KEYPAD			(1 << 8)
+#define WPS_CONF_V_PUSH_BTN		(1 << 9)
+#define WPS_CONF_PHY_PUSH_BTN	(1 << 10)
+#define WPS_CONF_V_DISPLAY		(1 << 13)
+#define WPS_CONF_PHY_DISPLAY	(1 << 14)
 
 struct auth_frame {
 	uint16		algorithm;

@@ -20,9 +20,9 @@
 static inline void set_timer(struct timeval *tv, int ms_from_now)
 {
 	gettimeofday(tv, 0);
-	tv->tv_sec += ms_from_now/1000;
-	ms_from_now -= (ms_from_now/1000)*1000;
-	tv->tv_usec += ms_from_now*1000;
+	tv->tv_sec += ms_from_now / 1000;
+	ms_from_now -= (ms_from_now / 1000) * 1000;
+	tv->tv_usec += ms_from_now * 1000;
 };
 
 
@@ -44,7 +44,8 @@ static inline int elapsed(struct timeval *then)
 	gettimeofday(&now, 0);
 
 	if (now.tv_usec < then->tv_usec)
-		return ((now.tv_sec - 1) - then->tv_sec)*1000 + (now.tv_usec+1000000 - then->tv_usec)/1000;
+		return ((now.tv_sec - 1) - then->tv_sec) * 1000 + (now.tv_usec + 1000000 -
+														   then->tv_usec) / 1000;
 	else
-		return (now.tv_sec - then->tv_sec)*1000 + (now.tv_usec - then->tv_usec)/1000;
+		return (now.tv_sec - then->tv_sec) * 1000 + (now.tv_usec - then->tv_usec) / 1000;
 };

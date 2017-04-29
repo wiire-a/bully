@@ -23,15 +23,16 @@
 
 char OUI_NULL[OUI_STR_LEN] = "-";
 vendor_t vendor_list[] = {
-	{"\x00\x03\x7f", "AtherosC", PWPS_NONE       }, /* Atheros Communications */
+	{"\x00\x03\x7f", "AtherosC", PWPS_NONE},        /* Atheros Communications */
 	{"\x00\x10\x18", "Broadcom", PWPS_ECOS_SIMPLE}, /* Broadcom */
-	{"\x00\x50\x43", "MarvellS", PWPS_NONE       }, /* MARVELL SEMICONDUCTOR, INC */
-	{"\x00\x0c\x43", "RalinkTe", PWPS_RT         }, /* Ralink Technology, Corp. */
-	{"\x00\xe0\x4c", "RealtekS", PWPS_RTL819x    }  /* REALTEK SEMICONDUCTOR CORP. */
+	{"\x00\x50\x43", "MarvellS", PWPS_NONE},        /* MARVELL SEMICONDUCTOR, INC */
+	{"\x00\x0c\x43", "RalinkTe", PWPS_RT},          /* Ralink Technology, Corp. */
+	{"\x00\xe0\x4c", "RealtekS", PWPS_RTL819x}      /* REALTEK SEMICONDUCTOR CORP. */
 };
-#define VENDOR_LIST_SIZE (sizeof(vendor_list) / sizeof(vendor_list[0]))
 
-char *get_vendor(uint8_t *oui)
+#define VENDOR_LIST_SIZE (sizeof(vendor_list)/sizeof(vendor_list[0]))
+
+char *get_vendor(uint8_t * oui)
 {
 	int i;
 	for (i = 0; i < VENDOR_LIST_SIZE; i++) {

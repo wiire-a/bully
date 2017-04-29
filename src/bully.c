@@ -48,10 +48,10 @@
 #define	CONFIG_INTERNAL_LIBTOMMATH
 #include "tls/bignum.c"
 
-#define	eloop_register_timeout(v,w,x,y,z)	_ert = 0
-#define	eloop_cancel_timeout(x,y,z)		_ect = 0
-#define	wps_enrollee_process_msg(x,y,z)		_epm = 0
-#define	wps_enrollee_get_msg(y,z)		_egm = 0
+#define	eloop_register_timeout(v,w,x,y,z)    _ert = 0
+#define	eloop_cancel_timeout(x,y,z)          _ect = 0
+#define	wps_enrollee_process_msg(x,y,z)      _epm = 0
+#define	wps_enrollee_get_msg(y,z)            _egm = 0
 
 #include "utils/os_unix.c"
 #include "utils/common.c"
@@ -99,26 +99,26 @@ void sigint_h(int signal) { signm = signal; ctrlc = 1; };
 
 int main(int argc, char *argv[])
 {
-	int	k, result, nocheck = 0, fcs_count = 0, to_count = 0;
+	int k, result, nocheck = 0, fcs_count = 0, to_count = 0;
 
-	char	essids[33] = {0}, *essid = essids;
-	char	bssids[18] = {0};
-	char	hwmacs[18] = {0};
+	char essids[33] = { 0 }, *essid = essids;
+	char bssids[18] = { 0 };
+	char hwmacs[18] = { 0 };
 
-	char	*error;
+	char *error;
 
-	mac_t	*mac;
-	tag_t	*tag, *tags[20] = {0};
-	vtag_t	*vtag, *vt;
-	int	tlen, vlen, tn = 1;
+	mac_t *mac;
+	tag_t *tag, *tags[20] = { 0 };
+	vtag_t *vtag, *vt;
+	int tlen, vlen, tn = 1;
 
-	uint8	essidt[35] = {0};
+	uint8 essidt[35] = { 0 };
 
 	struct timeval timer;
-	struct sigaction sigact = {0};
+	struct sigaction sigact = { 0 };
 	struct stat wstat;
 
-	FILE	*rf, *of;
+	FILE *rf, *of;
 
 	srandom(time(NULL));
 
@@ -128,13 +128,13 @@ int main(int argc, char *argv[])
 		G->phdr = calloc(1, sizeof(struct pcap_pkthdr));
 		if (!G->phdr)
 			goto mem_err;
-		G->error = calloc(1,256);
+		G->error = calloc(1, 256);
 		if (!G->error)
 			goto mem_err;
-		G->perr = calloc(1,PCAP_ERRBUF_SIZE);
+		G->perr = calloc(1, PCAP_ERRBUF_SIZE);
 		if (!G->perr)
 			goto mem_err;
-		G->index = calloc(1,MAX_CHAN+1);
+		G->index = calloc(1, MAX_CHAN + 1);
 		if (!G->index)
 			goto mem_err;
 
@@ -148,7 +148,7 @@ int main(int argc, char *argv[])
 			goto mem_err;
 
 		G->verbose = __vb;
-		G->smacs = fmt_mac(hwmacs,G->hwmac);
+		G->smacs = fmt_mac(hwmacs, G->hwmac);
 		G->lwait = LOCK_WAIT_SECS;
 		G->hop = BG_CHANS;
 		G->has_fcs = 1;
@@ -170,233 +170,232 @@ int main(int argc, char *argv[])
 		strcat(G->warpath, "/.");
 		strcat(G->warpath, EXE_NAME);
 		mkdir(G->warpath, S_IRWXU | S_IRWXG | S_IROTH | S_IXOTH);
+	}
+	else {
 
-	} else {
-	mem_err:
+mem_err:
 		fprintf(stderr, "Memory allocation error\n");
 		return 2;
 	};
 
 
-	while( 1 )
-	{
+	while (1) {
 		int option_index = 0;
-
 		static struct option long_options[] = {
-			{"acktime",	1,	0,	'a'},
-			{"bssid",	1,	0,	'b'},
-			{"channel",	1,	0,	'c'},
-			{"essid",	1,	0,	'e'},
-			{"index",	1,	0,	'i'},
-			{"lockwait",	1,	0,	'l'},
-			{"m13time",	1,	0,	'm'},
-			{"outfile",	1,	0,	'o'},
-			{"pin",		1,	0,	'p'},
-			{"retries",	1,	0,	'r'},
-			{"source",	1,	0,	's'},
-			{"timeout",	1,	0,	't'},
-			{"verbosity",	1,	0,	'v'},
-			{"workdir",	1,	0,	'w'},
-			{"pin1delay",	1,	0,	'1'},
-			{"pin2delay",	1,	0,	'2'},
-			{"5ghz",	0,	0,	'5'},
-			{"noacks",	0,	0,	'A'},
-			{"nocheck",	0,	0,	'C'},
-			{"bruteforce",	0,	0,	'B'},
-			{"detectlock",	0,	0,	'D'},
-			{"eapfail",	0,	0,	'E'},
-			{"force",	0,	0,	'F'},
-			{"lockignore",	0,	0,	'L'},
-			{"m57nack",	0,	0,	'M'},
-			{"nofcs",	0,	0,	'N'},
-			{"probe",	0,	0,	'P'},
-			{"wpsinfo",		0,	0,	'Q'},
-			{"radiotap",	0,	0,	'R'},
-			{"sequential",	0,	0,	'S'},
-			{"test",	0,	0,	'T'},
-			{"version",	0,	0,	'V'},
-			{"windows7",	0,	0,	'W'},
-			{"suppress",	0,	0,	'Z'},
-			{"help",	0,	0,	'h'},
-			{0,		0,	0,	 0 }
+			{"acktime",    1, 0, 'a'},
+			{"bssid",      1, 0, 'b'},
+			{"channel",    1, 0, 'c'},
+			{"essid",      1, 0, 'e'},
+			{"index",      1, 0, 'i'},
+			{"lockwait",   1, 0, 'l'},
+			{"m13time",    1, 0, 'm'},
+			{"outfile",    1, 0, 'o'},
+			{"pin",        1, 0, 'p'},
+			{"retries",    1, 0, 'r'},
+			{"source",     1, 0, 's'},
+			{"timeout",    1, 0, 't'},
+			{"verbosity",  1, 0, 'v'},
+			{"workdir",    1, 0, 'w'},
+			{"pin1delay",  1, 0, '1'},
+			{"pin2delay",  1, 0, '2'},
+			{"5ghz",       0, 0, '5'},
+			{"noacks",     0, 0, 'A'},
+			{"nocheck",    0, 0, 'C'},
+			{"bruteforce", 0, 0, 'B'},
+			{"detectlock", 0, 0, 'D'},
+			{"eapfail",    0, 0, 'E'},
+			{"force",      0, 0, 'F'},
+			{"lockignore", 0, 0, 'L'},
+			{"m57nack",    0, 0, 'M'},
+			{"nofcs",      0, 0, 'N'},
+			{"probe",      0, 0, 'P'},
+			{"wpsinfo",    0, 0, 'Q'},
+			{"radiotap",   0, 0, 'R'},
+			{"sequential", 0, 0, 'S'},
+			{"test",       0, 0, 'T'},
+			{"version",    0, 0, 'V'},
+			{"windows7",   0, 0, 'W'},
+			{"suppress",   0, 0, 'Z'},
+			{"help",       0, 0, 'h'},
+			{0,            0, 0,  0 }
 		};
 
-		int option = getopt_long( argc, argv, "a:b:c:e:i:l:m:o:p:r:s:t:v:w:1:2:5ABCDEFLMNPQRSTVWZh",
-					long_options, &option_index );
+		int option = getopt_long(argc, argv, "a:b:c:e:i:l:m:o:p:r:s:t:v:w:1:2:5ABCDEFLMNPQRSTVWZh",
+								 long_options, &option_index);
+		if (option < 0)
+			break;
 
-		if( option < 0 ) break;
-
-		switch( option ) {
-			case 0 :
-				break;
-			case 'a' :
-				if (get_int(optarg, &G->acktime) != 0) {
-					snprintf(G->error, 256, "Bad packet timeout number -- %s\n", optarg);
-					goto usage_err;
-				};
-				printf("Deprecated option --acktime (-a) ignored\n");
-				break;
-			case 'b' :
-				if (get_mac(optarg, G->bssid) != 0) {
-					snprintf(G->error, 256, "Bad target MAC address -- %s\n", optarg);
-					goto usage_err;
-				};
-				G->ssids = fmt_mac(bssids,G->bssid);
-				break;
-			case 'c' :
-				G->hop = optarg;
-				break;
-			case 'e' :
-				G->essid = optarg;
-				break;
-			case 'i' :
-				if (get_int(optarg, &G->pindex) != 0 || 99999999 < G->pindex) {
-					snprintf(G->error, 256, "Bad starting index number -- %s\n", optarg);
-					goto usage_err;
-				};
-				break;
-			case 'l' :
-				if (get_int(optarg, &G->lwait) != 0) {
-					snprintf(G->error, 256, "Bad lock wait number -- %s\n", optarg);
-					goto usage_err;
-				};
-				break;
-			case 'm' :
-				if (get_int(optarg, &G->m13time) != 0) {
-					snprintf(G->error, 256, "Bad M1/M3 timeout number -- %s\n", optarg);
-					goto usage_err;
-				};
-				printf("Deprecated option --m13time (-m) ignored\n");
-				break;
-			case 'o' :
-				if ((of = fopen(optarg, "w")) != NULL)
-					__vf = of;
-				else {
-					snprintf(G->error, 256, "Can't open output file -- %s\n", optarg);
-					goto usage_err;
-				};
-				break;
-			case 'p' :
-				if (get_int(optarg, &G->pinstart) != 0 || 99999999 < G->pinstart) {
-					snprintf(G->error, 256, "Bad starting pin number -- %s\n", optarg);
-					goto usage_err;
-				};
-				break;
-			case 'r' :
-				if (get_int(optarg, &G->retries) != 0) {
-					snprintf(G->error, 256, "Bad max retries number -- %s\n", optarg);
-					goto usage_err;
-				};
-				break;
-			case 's' :
-				if (get_mac(optarg, G->hwmac) != 0 || memcmp(G->hwmac, NULL_MAC, 6) == 0) {
-					snprintf(G->error, 256, "Bad source MAC address -- %s\n", optarg);
-					goto usage_err;
-				};
-				break;
-			case 't' :
-				if (get_int(optarg, &G->stdtime) != 0) {
-					snprintf(G->error, 256, "Bad timeout number -- %s\n", optarg);
-					goto usage_err;
-				};
-				printf("Deprecated option --timeout (-t) ignored\n");
-				break;
-			case 'v' :
-				if (get_int(optarg, &G->verbose) != 0 || G->verbose < 1 || 3 < G->verbose) {
-					snprintf(G->error, 256, "Bad verbosity level -- %s\n", optarg);
-					goto usage_err;
-				};
-				__vb = G->verbose;
-				break;
-			case 'w' :
-				if (stat(optarg, &wstat) || !S_ISDIR(wstat.st_mode)) {
-					snprintf(G->error, 256, "Bad working directory -- %s\n", optarg);
-					goto usage_err;
-				};
-				result = wstat.st_mode | (wstat.st_mode>>4);
-				if ((result & S_IRWXG) != S_IRWXG) {
-					snprintf(G->error, 256, "Permission denied -- %s\n", optarg);
-					goto usage_err;
-				};
-				free(G->warpath);
-				G->warpath = optarg;
-				break;
-			case '1' :
-				if (get_int(optarg, &G->k1delay) != 0)
-					if (sscanf(optarg, "%d,%d%s", &G->k1delay, &G->k1step, G->error) != 2) {
-						snprintf(G->error, 256, "Bad recurring delay -- %s\n", optarg);
-						goto usage_err;
-					};
-				break;
-			case '2' :
-				if (get_int(optarg, &G->k2delay) != 0)
-					if (sscanf(optarg, "%d,%d%s", &G->k2delay, &G->k2step, G->error) != 2) {
-						snprintf(G->error, 256, "Bad recurring delay -- %s\n", optarg);
-						goto usage_err;
-					};
-				break;
-			case '5' :
-				G->hop = AN_CHANS;
-				break;
-			case 'A' :
-				G->use_ack = 0;
-				break;
-			case 'B' :
-				G->broken = 1;
-				break;
-			case 'C' :
-				nocheck = 1;
-				break;
-			case 'D' :
-				G->detect = 1;
-				break;
-			case 'E' :
-				G->eapfail = 1;
-				break;
-			case 'F' :
-				G->force = 1;
-				break;
-			case 'L' :
-				G->ignore = 1;
-				break;
-			case 'M' :
-				G->m57nack = 1;
-				times[PKT_M5].avg = times[PKT_M5].max = times[PKT_M5].def * 2;
-				times[PKT_M7].avg = times[PKT_M7].max = times[PKT_M7].def * 2;
-				break;
-			case 'N' :
-				G->has_fcs = 0;
-				break;
-			case 'P' :
-				G->probe = 1;
-				break;
-			case 'Q' :
-				G->wpsinfo = 1;
-				break;
-			case 'R' :
-				G->has_rth = 1;
-				break;
-			case 'S' :
-				G->random = 0;
-				break;
-			case 'T' :
-				G->test = 1;
-				break;
-			case 'V' :
-				printf("%s\n",VERSION);
-				exit(0);
-			case 'W' :
-				G->win7 = 1;
-				break;
-			case 'Z' :
-				G->suppress = 1;
-				break;
-			case 'h' :
+		switch (option) {
+		case 0:
+			break;
+		case 'a':
+			if (get_int(optarg, &G->acktime) != 0) {
+				snprintf(G->error, 256, "Bad packet timeout number -- %s\n", optarg);
 				goto usage_err;
-			case '?' :
-			default  :
-				fprintf(stderr, "\"%s --help\" for help.\n", argv[0]);
-				return 1;
+			};
+			printf("Deprecated option --acktime (-a) ignored\n");
+			break;
+		case 'b':
+			if (get_mac(optarg, G->bssid) != 0) {
+				snprintf(G->error, 256, "Bad target MAC address -- %s\n", optarg);
+				goto usage_err;
+			};
+			G->ssids = fmt_mac(bssids, G->bssid);
+			break;
+		case 'c':
+			G->hop = optarg;
+			break;
+		case 'e':
+			G->essid = optarg;
+			break;
+		case 'i':
+			if (get_int(optarg, &G->pindex) != 0 || 99999999 < G->pindex) {
+				snprintf(G->error, 256, "Bad starting index number -- %s\n", optarg);
+				goto usage_err;
+			};
+			break;
+		case 'l':
+			if (get_int(optarg, &G->lwait) != 0) {
+				snprintf(G->error, 256, "Bad lock wait number -- %s\n", optarg);
+				goto usage_err;
+			};
+			break;
+		case 'm':
+			if (get_int(optarg, &G->m13time) != 0) {
+				snprintf(G->error, 256, "Bad M1/M3 timeout number -- %s\n", optarg);
+				goto usage_err;
+			};
+			printf("Deprecated option --m13time (-m) ignored\n");
+			break;
+		case 'o':
+			if ((of = fopen(optarg, "w")) != NULL)
+				__vf = of;
+			else {
+				snprintf(G->error, 256, "Can't open output file -- %s\n", optarg);
+				goto usage_err;
+			};
+			break;
+		case 'p':
+			if (get_int(optarg, &G->pinstart) != 0 || 99999999 < G->pinstart) {
+				snprintf(G->error, 256, "Bad starting pin number -- %s\n", optarg);
+				goto usage_err;
+			};
+			break;
+		case 'r':
+			if (get_int(optarg, &G->retries) != 0) {
+				snprintf(G->error, 256, "Bad max retries number -- %s\n", optarg);
+				goto usage_err;
+			};
+			break;
+		case 's':
+			if (get_mac(optarg, G->hwmac) != 0 || memcmp(G->hwmac, NULL_MAC, 6) == 0) {
+				snprintf(G->error, 256, "Bad source MAC address -- %s\n", optarg);
+				goto usage_err;
+			};
+			break;
+		case 't':
+			if (get_int(optarg, &G->stdtime) != 0) {
+				snprintf(G->error, 256, "Bad timeout number -- %s\n", optarg);
+				goto usage_err;
+			};
+			printf("Deprecated option --timeout (-t) ignored\n");
+			break;
+		case 'v':
+			if (get_int(optarg, &G->verbose) != 0 || G->verbose < 1 || 3 < G->verbose) {
+				snprintf(G->error, 256, "Bad verbosity level -- %s\n", optarg);
+				goto usage_err;
+			};
+			__vb = G->verbose;
+			break;
+		case 'w':
+			if (stat(optarg, &wstat) || !S_ISDIR(wstat.st_mode)) {
+				snprintf(G->error, 256, "Bad working directory -- %s\n", optarg);
+				goto usage_err;
+			};
+			result = wstat.st_mode | (wstat.st_mode >> 4);
+			if ((result & S_IRWXG) != S_IRWXG) {
+				snprintf(G->error, 256, "Permission denied -- %s\n", optarg);
+				goto usage_err;
+			};
+			free(G->warpath);
+			G->warpath = optarg;
+			break;
+		case '1':
+			if (get_int(optarg, &G->k1delay) != 0)
+				if (sscanf(optarg, "%d,%d%s", &G->k1delay, &G->k1step, G->error) != 2) {
+					snprintf(G->error, 256, "Bad recurring delay -- %s\n", optarg);
+					goto usage_err;
+				};
+			break;
+		case '2':
+			if (get_int(optarg, &G->k2delay) != 0)
+				if (sscanf(optarg, "%d,%d%s", &G->k2delay, &G->k2step, G->error) != 2) {
+					snprintf(G->error, 256, "Bad recurring delay -- %s\n", optarg);
+					goto usage_err;
+				};
+			break;
+		case '5':
+			G->hop = AN_CHANS;
+			break;
+		case 'A':
+			G->use_ack = 0;
+			break;
+		case 'B':
+			G->broken = 1;
+			break;
+		case 'C':
+			nocheck = 1;
+			break;
+		case 'D':
+			G->detect = 1;
+			break;
+		case 'E':
+			G->eapfail = 1;
+			break;
+		case 'F':
+			G->force = 1;
+			break;
+		case 'L':
+			G->ignore = 1;
+			break;
+		case 'M':
+			G->m57nack = 1;
+			times[PKT_M5].avg = times[PKT_M5].max = times[PKT_M5].def * 2;
+			times[PKT_M7].avg = times[PKT_M7].max = times[PKT_M7].def * 2;
+			break;
+		case 'N':
+			G->has_fcs = 0;
+			break;
+		case 'P':
+			G->probe = 1;
+			break;
+		case 'Q':
+			G->wpsinfo = 1;
+			break;
+		case 'R':
+			G->has_rth = 1;
+			break;
+		case 'S':
+			G->random = 0;
+			break;
+		case 'T':
+			G->test = 1;
+			break;
+		case 'V':
+			printf("%s\n", VERSION);
+			exit(0);
+		case 'W':
+			G->win7 = 1;
+			break;
+		case 'Z':
+			G->suppress = 1;
+			break;
+		case 'h':
+			goto usage_err;
+		case '?':
+		default:
+			fprintf(stderr, "\"%s --help\" for help.\n", argv[0]);
+			return 1;
 		};
 	};
 
@@ -405,7 +404,8 @@ int main(int argc, char *argv[])
 			G->error = "No monitor mode interface specified\n";
 		else
 			G->error = "Too many arguments\n";
-	usage_err:
+
+usage_err:
 		fprintf(stderr, usage, argv[0], G->error);
 		return 1;
 	};
@@ -413,8 +413,8 @@ int main(int argc, char *argv[])
 	if (-1 < G->pindex) {
 		if (9999999 < G->pindex && !G->broken) {
 			snprintf(G->error, 256,
-				"Index number must be less than 8 digits unless -bruteforce is specified -- %08d\n",
-				G->pindex);
+					 "Index number must be less than 8 digits unless -bruteforce is specified -- %08d\n",
+					 G->pindex);
 			goto usage_err;
 		};
 		if (-1 < G->pinstart) {
@@ -428,8 +428,8 @@ int main(int argc, char *argv[])
 	};
 	if (9999999 < G->pinstart && !G->broken) {
 		snprintf(G->error, 256,
-			"Pin number must be less than 8 digits unless -bruteforce is specified -- %08d\n",
-			G->pinstart);
+				 "Pin number must be less than 8 digits unless -bruteforce is specified -- %08d\n",
+				 G->pinstart);
 		goto usage_err;
 	};
 
@@ -484,33 +484,36 @@ int main(int argc, char *argv[])
 	if (G->dlt == DLT_IEEE802_11_RADIO)
 		G->has_rth = 1;
 	vprint("[+] Datalink type set to '%d', radiotap headers %s\n",
-				G->dlt, (G->has_rth ? "present" : "not present"));
+		   G->dlt, (G->has_rth ? "present" : "not present"));
 
-	if (G->probe) {		// Build directed probe request for nonbeaconing AP's
+	if (G->probe) { /* Build directed probe request for nonbeaconing AP's */
 		mac = (mac_t*)(&prober[RTH_SIZE]);
 		memcpy(mac->adr2.addr, G->hwmac, 6);
 		tags[0] = (tag_t*)(essidt);
 		tags[0]->len = strlen(G->essid);
 		memcpy(tags[0]->data, G->essid, tags[0]->len);
-		int tmpl;  uint8 *tmp = build_ietags(tags, &tmpl);
-		G->dprobe = build_packet(prober,sizeof(prober)-1,tmp,tmpl);
-		G->reql = sizeof(prober)-1 + tmpl;
+		int tmpl;
+		uint8 *tmp = build_ietags(tags, &tmpl);
+		G->dprobe = build_packet(prober, sizeof(prober) - 1, tmp, tmpl);
+		G->reql = sizeof(prober) - 1 + tmpl;
 		free(tmp);
 	};
 
 	vprint("[+] Scanning for beacon from '%s' on channel '%s'\n",
-			(G->ssids ? G->ssids : G->essid), G->schan);
+		   (G->ssids ? G->ssids : G->essid), G->schan);
 
 	while (1) {
-	ap_beacon:
+
+ap_beacon:
 		if (G->probe) {
 			if (!G->test)
 				result = send_packet(G, G->dprobe, G->reql, 1);
 			result = next_packet(G, MAC_TYPE_MGMT, MAC_ST_PROBE_RESP,
-							G->hwmac, G->bssid, PKT_PR, TRUE);
-		} else
+								 G->hwmac, G->bssid, PKT_PR, TRUE);
+		}
+		else
 			result = next_packet(G, MAC_TYPE_MGMT, MAC_ST_BEACON,
-							BCAST_MAC, G->bssid, PKT_BEA, TRUE);
+								 BCAST_MAC, G->bssid, PKT_BEA, TRUE);
 
 		if (result == SUCCESS) {
 			tag = (tag_t*)(G->inp[F_PAY].data + BFP_SIZE);
@@ -518,16 +521,15 @@ int main(int argc, char *argv[])
 			if (G->essid)
 				if (strlen(G->essid) != tag->len)
 					goto ap_beacon;
+				else if (memcmp(G->essid, tag->data, tag->len) == 0)
+					break;
+				else if (memcmp(tag->data, nulls, tag->len) == 0) {
+					memcpy(tag->data, G->essid, tag->len);
+					break;
+				}
 				else
-					if (memcmp(G->essid, tag->data, tag->len) == 0)
-						break;
-					else
-						if (memcmp(tag->data, nulls, tag->len) == 0) {
-							memcpy(tag->data, G->essid, tag->len);
-							break;
-						} else
-							goto ap_beacon;
-			memcpy(essids,tag->data,tag->len);
+					goto ap_beacon;
+			memcpy(essids, tag->data, tag->len);
 			G->essid = essids;
 			break;
 		};
@@ -546,11 +548,12 @@ int main(int argc, char *argv[])
 				if (G->chanx == G->start) {
 					if (++to_count < 3)
 						continue;
-				} else
+				}
+				else
 					continue;
-			} else
-				if (++to_count < 3)
-					continue;
+			}
+			else if (++to_count < 3)
+				continue;
 
 		vprint("[X] Unable to get a beacon from the AP, possible causes are\n");
 		vprint("[.]    an invalid --bssid or -essid was provided,\n");
@@ -605,7 +608,7 @@ int main(int argc, char *argv[])
 	memcpy(mac->adr2.addr, G->hwmac, 6);
 	memcpy(mac->adr3.addr, G->bssid, 6);
 
-	assn_t *ass = (assn_t*)(&asshat[RTH_SIZE+MAC_SIZE_NORM]);
+	assn_t *ass = (assn_t*)(&asshat[RTH_SIZE + MAC_SIZE_NORM]);
 	ass->capability = ((bfp_t*)(G->inp[F_PAY].data))->capability;
 
 	tags[0] = tag;
@@ -617,7 +620,7 @@ int main(int argc, char *argv[])
 				G->chanx = set_chan(G, tags[tn]->data[0]);
 			else
 				vprint("[!] The access point is on channel '%d', not '%s'\n",
-							tags[tn]->data[0], G->schan);
+					   tags[tn]->data[0], G->schan);
 		tn++;
 	};
 	if ((tags[tn] = find_tag(tag, tlen, TAG_XRAT, 0, NULL, 0)) != NULL)
@@ -650,11 +653,12 @@ int main(int argc, char *argv[])
 		vprint("[!] Beacon information element indicates WPS is locked\n");
 	};
 	if (vt = find_vtag(vtag, vlen, TAG_WPS_V_EXT, 2)) {
-		uint8 *v2 = (uint8 *)(vt->data + 3);
+		uint8 *v2 = (uint8*)(vt->data + 3);
 		if (*v2++ == TAG_WPS_V2)
 			if (*v2++ == 1)
 				vprint("[+] WPS version '%u.%u'\n", *v2 >> 4, *v2 & 0x0f);
-	} else {
+	}
+	else {
 		/* Assume version 1 (some APs may report version 0) */
 		vprint("[+] WPS version '1.0'\n");
 	};
@@ -665,7 +669,8 @@ int main(int argc, char *argv[])
 		tags[0] = (tag_t*)(essidt);
 		tags[0]->len = strlen(G->essid);
 		memcpy(tags[0]->data, G->essid, tags[0]->len);
-		int tmpl;  uint8 *tmp = build_ietags(tags, &tmpl);
+		int tmpl;
+		uint8 *tmp = build_ietags(tags, &tmpl);
 		G->dprobe = build_packet(prober, sizeof(prober) - 1, tmp, tmpl);
 		G->reql = sizeof(prober) - 1 + tmpl;
 		free(tmp);
@@ -677,7 +682,7 @@ int main(int argc, char *argv[])
 ap_probe:
 			result = send_packet(G, G->dprobe, G->reql, 1);
 			result = next_packet(G, MAC_TYPE_MGMT, MAC_ST_PROBE_RESP,
-							G->hwmac, G->bssid, PKT_PR, TRUE);
+								 G->hwmac, G->bssid, PKT_PR, TRUE);
 
 			if (result == SUCCESS) { /* G->has_fcs is already set to 0 if needed */
 				tag = (tag_t*)(G->inp[F_PAY].data + BFP_SIZE);
@@ -688,7 +693,6 @@ ap_probe:
 				else
 					break;
 			};
-
 			if (result == TIMEOUT) {
 				vprint("[!] Unable to get probe response from the AP\n");
 				break;
@@ -701,7 +705,7 @@ ap_probe:
 			if (tag = find_tag(tag, tlen, TAG_VEND, 0, MS_WPS_ID, 4)) {
 				vtag = (vtag_t*)&tag->data[4];
 				vlen = tag->len - 4;
-				vtag_t* init_vtag = vtag; /* Assuming WPS tags are not ordered */
+				vtag_t *init_vtag = vtag; /* Assuming WPS tags are not ordered */
 				int tsiz = 0;
 				char dn[32];
 
@@ -770,28 +774,29 @@ ap_probe:
 		};
 	};
 
-	int msgl;  uint8 *msg = build_ietags(tags, &msgl);
-	G->asshat = build_packet(asshat,sizeof(asshat)-1,msg,msgl);
-	G->assl = sizeof(asshat)-1 + msgl;
+	int msgl;
+	uint8 *msg = build_ietags(tags, &msgl);
+	G->asshat = build_packet(asshat, sizeof(asshat) - 1, msg, msgl);
+	G->assl = sizeof(asshat) - 1 + msgl;
 	free(msg);
 
-	parse_packet(G->inp, &wfamsg[0], sizeof(wfamsg)-1, TRUE, TRUE);
+	parse_packet(G->inp, &wfamsg[0], sizeof(wfamsg) - 1, TRUE, TRUE);
 	G->d1xlnx = (uint8*)&((d1x_t*)G->inp[F_D1X].data)->len - &wfamsg[0];
-	G->eapidx = (uint8*)&((eap_t*)G->inp[F_EAP].data)->id - &wfamsg[0];
+	G->eapidx = (uint8*)&((eap_t*)G->inp[F_EAP].data)->id  - &wfamsg[0];
 	G->eaplnx = (uint8*)&((eap_t*)G->inp[F_EAP].data)->len - &wfamsg[0];
-	G->wfaopx = (uint8*)&((wfa_t*)G->inp[F_WFA].data)->op - &wfamsg[0];
+	G->wfaopx = (uint8*)&((wfa_t*)G->inp[F_WFA].data)->op  - &wfamsg[0];
 
-	wpsc_t *wconf = calloc(sizeof(wpsc_t),1);
+	wpsc_t *wconf = calloc(sizeof(wpsc_t), 1);
 	if (!wconf)
 		goto mem_err;
 	wconf->registrar = TRUE;
 
-	wpsr_t *wregc = calloc(sizeof(wpsr_t),1);
+	wpsr_t *wregc = calloc(sizeof(wpsr_t), 1);
 	if (!wregc)
 		goto mem_err;
 	wregc->disable_auto_conf = TRUE;
 
-	wconf->wps = calloc(sizeof(wctx_t),1);
+	wconf->wps = calloc(sizeof(wctx_t), 1);
 	if (!wconf->wps)
 		goto mem_err;
 
@@ -801,7 +806,7 @@ ap_probe:
 		return 6;
 	};
 
-	for (k=0; k<16; k++)
+	for (k = 0; k < 16; k++)
 		wconf->wps->uuid[k] = random() % 256;
 	G->wdata = wps_init(wconf);
 	if (!G->wdata) {
@@ -835,12 +840,12 @@ ap_probe:
 	strcat(G->runf, hex(G->bssid, 6));
 	strcat(G->runf, ".run");
 
-	char	pinstr[9];
-	int	pincount, savecount;
-	int	pinmax = (G->broken ? 100000000 : 10000000);
-	int	pin2max = (G->broken ? 10000 : 1000);
-	int	pin2div = (G->broken ? 1 : 10);
-	int	pin, pindex, phold = get_start(G);
+	char pinstr[9];
+	int pincount, savecount;
+	int pinmax  = (G->broken ? 100000000 : 10000000);
+	int pin2max = (G->broken ? 10000     : 1000);
+	int pin2div = (G->broken ? 1         : 10);
+	int pin, pindex, phold = get_start(G);
 
 	sigact.sa_handler = sigint_h;
 	sigaction(SIGHUP,  &sigact, 0);
@@ -859,15 +864,16 @@ restart:
 		pindex = G->pinstart;
 
 	if (G->random)
-		pin = G->pin1[pindex/pin2max] * pin2max + G->pin2[pindex%pin2max] / pin2div;
+		pin = G->pin1[pindex / pin2max] * pin2max + G->pin2[pindex % pin2max] / pin2div;
 	else
 		pin = pindex;
 
 	if (G->broken) {
-		snprintf(pinstr,9,"%08d",pin);
+		snprintf(pinstr, 9, "%08d", pin);
 		vprint("[+] Index of starting pin number is '%08d'\n", pindex);
-	} else {
-		snprintf(pinstr,9,"%07d%1d",pin,wps_pin_checksum(pin));
+	}
+	else {
+		snprintf(pinstr, 9, "%07d%1d", pin, wps_pin_checksum(pin));
 		vprint("[+] Index of starting pin number is '%07d'\n", pindex);
 	};
 
@@ -916,26 +922,32 @@ restart:
 			if ((++pincount & 0x1f) == 0) {
 				gettimeofday(&now, 0);
 				secs = time = now.tv_sec - start.tv_sec;
-				hour = secs/3600;	secs -= hour*3600;
-				mins = secs/60;		secs -= mins*60;
-				i = time/pincount;	time -= i*pincount;
-				d = time*100/pincount;
+				hour = secs / 3600;
+				secs -= hour * 3600;
+				mins = secs / 60;
+				secs -= mins * 60;
+				i = time / pincount;
+				time -= i * pincount;
+				d = time * 100 / pincount;
 				vprint("[!] Run time %02d:%02d:%02d, pins tested %d (%d.%02d seconds per pin)\n",
-								hour, mins, secs, pincount, i, d);
+					   hour, mins, secs, pincount, i, d);
 
 				secs = time = now.tv_sec - last;
-				i = time/32;	time -= i*32;
-				d = time*100/32;
+				i = time / 32;
+				time -= i * 32;
+				d = time * 100 / 32;
 				time = pinmax - pindex;
-				time = time/pin2max + (time%pin2max ? time%pin2max : pin2max-1);
+				time = time / pin2max + (time % pin2max ? time % pin2max : pin2max - 1);
 
 				vprint("[!] Current rate %d.%02d seconds per pin, %05d pins remaining\n",
-								i, d, time);
+					   i, d, time);
 				secs = ((time * i * 100) + (time * d)) / 200;
-				hour = secs/3600;	secs -= hour*3600;
-				mins = secs/60;		secs -= mins*60;
+				hour = secs / 3600;
+				secs -= hour * 3600;
+				mins = secs / 60;
+				secs -= mins * 60;
 				vprint("[!] Average time to crack is %d hours, %d minutes, %d seconds\n",
-								hour, mins, secs);
+					   hour, mins, secs);
 
 				last = now.tv_sec;
 
@@ -944,11 +956,12 @@ restart:
 						gettimeofday(&timer, NULL);
 						strftime(G->error, 256, "%Y-%m-%d %H:%M:%S", localtime(&timer.tv_sec));
 						fprintf(rf, "# session in progress at %s\n%08d:%08d:%01d:%s:\n",
-								G->error, (G->broken ? pindex : pindex*10),
-								(G->broken ? pin : pin*10), G->broken, G->wdata->cred.key);
+								G->error, (G->broken ? pindex : pindex * 10),
+								(G->broken ? pin : pin * 10), G->broken, G->wdata->cred.key);
 						fclose(rf);
 						fprintf(stderr, "Saving session to '%s'\n", G->runf);
-					} else
+					}
+					else
 						fprintf(stderr, "WARNING : Couldn't save session to '%s'\n", G->runf);
 				};
 			};
@@ -965,11 +978,12 @@ restart:
 					G->delay += G->k1delay * 1000;
 					G->k1count = 0;
 				};
-			} else {
+			}
+			else {
 				if (result == KEY2NAK) {
-					if (key1hit ==0) {
+					if (key1hit == 0) {
 						key1hit = 1;
-						pinmax = (pindex/pin2max+1)*pin2max;
+						pinmax = (pindex / pin2max + 1) * pin2max;
 					};
 					pindex++;
 					if (pinmax <= pindex) {
@@ -984,25 +998,24 @@ restart:
 			};
 
 			if (G->random)
-				pin = G->pin1[pindex/pin2max] * pin2max + G->pin2[pindex%pin2max] / pin2div;
+				pin = G->pin1[pindex / pin2max] * pin2max + G->pin2[pindex % pin2max] / pin2div;
 			else
 				pin = pindex;
 
 			if (G->broken)
-				snprintf(pinstr,9,"%08d",pin);
+				snprintf(pinstr, 9, "%08d", pin);
 			else
-				snprintf(pinstr,9,"%07d%1d",pin,wps_pin_checksum(pin));
+				snprintf(pinstr, 9, "%07d%1d", pin, wps_pin_checksum(pin));
 
 		};
 
 	};
 
 	if (!G->test) {
-		if (result == SUCCESS)
-			send_packet(G, eapolf, sizeof(eapolf)-1, 0);
-		send_packet(G, deauth, sizeof(deauth)-1, 0);
-		send_packet(G, deauth, sizeof(deauth)-1, 0);
-		send_packet(G, deauth, sizeof(deauth)-1, 0);
+		if (result == SUCCESS) send_packet(G, eapolf, sizeof(eapolf) - 1, 0);
+		send_packet(G, deauth, sizeof(deauth) - 1, 0);
+		send_packet(G, deauth, sizeof(deauth) - 1, 0);
+		send_packet(G, deauth, sizeof(deauth) - 1, 0);
 	};
 
 	pcap_close(G->pfd);
@@ -1014,20 +1027,22 @@ restart:
 		gettimeofday(&timer, NULL);
 		strftime(G->error, 256, "%Y-%m-%d %H:%M:%S", localtime(&timer.tv_sec));
 		fprintf(rf, "# session ended %s with signal %d\n%08d:%08d:%01d:%s:\n",
-				G->error, signm, (G->broken ? pindex : pindex*10),
-				(G->broken ? pin : pin*10), G->broken, G->wdata->cred.key);
+				G->error, signm, (G->broken ? pindex : pindex * 10),
+				(G->broken ? pin : pin * 10), G->broken, G->wdata->cred.key);
 		fclose(rf);
-		if (ctrlc && !G->test) fprintf(stderr, "\n");
+		if (ctrlc && !G->test)
+			fprintf(stderr, "\n");
 		fprintf(stderr, "Saved session to '%s'\n", G->runf);
-	} else
+	}
+	else
 		fprintf(stderr, "WARNING : Couldn't save session to '%s'\n", G->runf);
 
 	if (result == SUCCESS) {
 		fprintf(stderr, "\n\tPIN : '%s'", pinstr);
 		fprintf(stderr, "\n\tKEY : '%s'\n\n", G->wdata->cred.key);
-	} else
+	}
+	else
 		result = -1;
 
 	return result;
-
 };

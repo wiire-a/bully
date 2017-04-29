@@ -19,29 +19,28 @@
 #ifndef _FRAME_H
 #define _FRAME_H
 
-
 struct frame {
-  struct frame	*next;
-	uint8	*data;
-	int	size;
-  struct frame	*list;
+	struct frame *next;
+	uint8 *data;
+	int size;
+	struct frame *list;
 };
-typedef	struct frame frame_t;
-#define	F_SIZE	(sizeof(frame_t))
+typedef struct frame frame_t;
+#define	F_SIZE (sizeof(frame_t))
 
-#define	F_ALL	0
-#define	F_TAP	1
-#define	F_MAC	2
-#define	F_PAY	3
-#define	F_FCS	4
-#define	F_LLC	5
-#define	F_D1X	6
-#define	F_EAP	7
-#define	F_WFA	8
-#define	F_MSG	9
-#define	F_IDK	10
-#define	F_MAX	11
+#define	F_ALL     0
+#define	F_TAP     1
+#define	F_MAC     2
+#define	F_PAY     3
+#define	F_FCS     4
+#define	F_LLC     5
+#define	F_D1X     6
+#define	F_EAP     7
+#define	F_WFA     8
+#define	F_MSG     9
+#define	F_IDK    10
+#define	F_MAX    11
 
-static inline void f_set(frame_t *fp, int id, int next, uint8 *data, int size, int list);
+static inline void f_set(frame_t * fp, int id, int next, uint8 * data, int size, int list);
 
 #endif /* _FRAME_H */

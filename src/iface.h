@@ -21,12 +21,12 @@
 
 #include "bully.h"
 
-char	BG_CHANS[] = "1,5,9,13,2,6,10,3,7,11,4,8,12";
-char	AN_CHANS[] = "36,40,44,48,52,56,58,60";
+char BG_CHANS[] = "1,5,9,13,2,6,10,3,7,11,4,8,12";
+char AN_CHANS[] = "36,40,44,48,52,56,58,60";
 
 struct cfreq {
-	int	chan;
-	int	freq;
+	int chan;
+	int freq;
 } freqs[] = {
 	{   1, 241200000 },
 	{   2, 241700000 },
@@ -70,8 +70,9 @@ struct cfreq {
 	{ 157, 578500000 },
 	{ 161, 580500000 },
 	{ 165, 582500000 }
-#define MAX_CHAN 165
+#define MAX_CHAN    165
 };
+
 #define	NUM_CHAN (sizeof(freqs)/sizeof(struct cfreq))
 
 int set_chan(struct global *G, int chan);

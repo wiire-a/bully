@@ -22,18 +22,18 @@
 #include <stdint.h>
 
 /* Pixiewps modes */
-#define PWPS_NONE			0
-#define PWPS_RT				1
-#define PWPS_ECOS_SIMPLE	2
-#define PWPS_RTL819x		3
-#define PWPS_ECOS_SIMPLEST	4
-#define PWPS_ECOS_KNUTH		5
+#define PWPS_NONE             0
+#define PWPS_RT               1
+#define PWPS_ECOS_SIMPLE      2
+#define PWPS_RTL819x          3
+#define PWPS_ECOS_SIMPLEST    4
+#define PWPS_ECOS_KNUTH       5
 
-#define OUI_STR_LEN			8 + 1
+#define OUI_STR_LEN    8 + 1
 struct vendor_oui {
-	uint8_t	oui[3];
-	char	name[OUI_STR_LEN];
-	uint8_t	pixiewps_mode;
+	uint8_t oui[3];
+	char name[OUI_STR_LEN];
+	uint8_t pixiewps_mode;
 };
 typedef struct vendor_oui vendor_t;
 

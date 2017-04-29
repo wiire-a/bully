@@ -1,8 +1,3 @@
-
-**A readonly subversion clone of this project exists at http://code.google.com/p/bully/source/checkout **
-
-**Prebuilt binary(s) can be downloaded from google code at http://code.google.com/p/bully/downloads/list **
-
 # OVERVIEW
 
 Bully is a new implementation of the WPS brute force attack, written in C. It is conceptually identical
@@ -17,7 +12,7 @@ tested against access points from numerous vendors, and with differing configura
 
 # DEPENDENCIES
 
-Bully requires libpcap and libssl. It uses WPS functionality written by Jouni Malinen; that source code
+Bully requires *libpcap*. It uses WPS functionality written by Jouni Malinen; that source code
 is included in this repro for simplicity, as are libcrypto and several other sources that provide needed
 functionality.
 
@@ -102,6 +97,7 @@ Advanced arguments:
   -M, --m57nack          : M5/M7 timeouts treated as WSC_NACK's  [No]
   -N, --nofcs            : Packets don't contain the FCS field [Auto]
   -P, --probe            : Use probe request for nonbeaconing AP [No]
+  -Q, --wpsinfo          : Use probe request to gather WPS info  [No]
   -R, --radiotap         : Assume radiotap headers are present [Auto]
   -W, --windows7         : Masquerade as a Windows 7 registrar   [No]
   -Z, --suppress         : Suppress packet throttling algorithm  [No]
@@ -266,6 +262,10 @@ Advanced arguments:
 
 		Bully uses beacons to examine the WPS state of an access point. For nonbeaconing AP's, send
 		directed probe requests and use the resulting probe responses instead. Requires --essid.
+
+      -Q, --wpsinfo
+
+		Send directed probe requests to gather information about the WPS configuration of the target.
 
       -R, --radiotap
 

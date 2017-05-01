@@ -207,23 +207,39 @@ next_vtag:
 };
 
 
-void build_dev_type_string(const uint16 cat, const uint16 scat, char *sbuf, const int blen)
+char *build_dev_passw_id(const uint16 passw_id, char *sbuf) {
+	sbuf[0] = '\0';
+	switch (passw_id) {
+	case 0: strcpy(sbuf, "Default (PIN)");       break;
+	case 1: strcpy(sbuf, "User-specified");      break;
+	case 2: strcpy(sbuf, "Machine-specified");   break;
+	case 3: strcpy(sbuf, "Rekey");               break;
+	case 4: strcpy(sbuf, "PushButton");          break;
+	case 5: strcpy(sbuf, "Registrar-specified"); break;
+	default: break;
+	};
+	return sbuf;
+};
+
+
+char *build_dev_type_string(const uint16 cat, const uint16 scat, char *sbuf)
 {
+	char *origin = sbuf;
 	sbuf[0] = '\0';
 	switch (cat) {
 	case 1:
 		strcpy(sbuf, "Computer");
 		sbuf += 8;
 		switch (scat) {
-		case 1: strcat(sbuf, ", PC");                     break;
-		case 2: strcat(sbuf, ", Server");                 break;
-		case 3: strcat(sbuf, ", Media center");           break;
-		case 4: strcat(sbuf, ", Ultra-mobile PC");        break;
-		case 5: strcat(sbuf, ", Notebook");               break;
-		case 6: strcat(sbuf, ", Desktop");                break;
-		case 7: strcat(sbuf, ", Mobile Internet Device"); break;
-		case 8: strcat(sbuf, ", Netbook");                break;
-		case 9: strcat(sbuf, ", Tablet");                 break;
+		case 1: strcpy(sbuf, ", PC");                     break;
+		case 2: strcpy(sbuf, ", Server");                 break;
+		case 3: strcpy(sbuf, ", Media center");           break;
+		case 4: strcpy(sbuf, ", Ultra-mobile PC");        break;
+		case 5: strcpy(sbuf, ", Notebook");               break;
+		case 6: strcpy(sbuf, ", Desktop");                break;
+		case 7: strcpy(sbuf, ", Mobile Internet Device"); break;
+		case 8: strcpy(sbuf, ", Netbook");                break;
+		case 9: strcpy(sbuf, ", Tablet");                 break;
 		default: break;
 		};
 		break;
@@ -231,15 +247,15 @@ void build_dev_type_string(const uint16 cat, const uint16 scat, char *sbuf, cons
 		strcpy(sbuf, "Input Device");
 		sbuf += 12;
 		switch (scat) {
-		case 1: strcat(sbuf, ", Keyboard");          break;
-		case 2: strcat(sbuf, ", Mouse");             break;
-		case 3: strcat(sbuf, ", Joystick");          break;
-		case 4: strcat(sbuf, ", Trackball");         break;
-		case 5: strcat(sbuf, ", Gaming controller"); break;
-		case 6: strcat(sbuf, ", Remote");            break;
-		case 7: strcat(sbuf, ", Touchscreen");       break;
-		case 8: strcat(sbuf, ", Biometric reader");  break;
-		case 9: strcat(sbuf, ", Barcode reader");    break;
+		case 1: strcpy(sbuf, ", Keyboard");          break;
+		case 2: strcpy(sbuf, ", Mouse");             break;
+		case 3: strcpy(sbuf, ", Joystick");          break;
+		case 4: strcpy(sbuf, ", Trackball");         break;
+		case 5: strcpy(sbuf, ", Gaming controller"); break;
+		case 6: strcpy(sbuf, ", Remote");            break;
+		case 7: strcpy(sbuf, ", Touchscreen");       break;
+		case 8: strcpy(sbuf, ", Biometric reader");  break;
+		case 9: strcpy(sbuf, ", Barcode reader");    break;
 		default: break;
 		};
 		break;
@@ -247,11 +263,11 @@ void build_dev_type_string(const uint16 cat, const uint16 scat, char *sbuf, cons
 		strcpy(sbuf, "Printer/Scanner");
 		sbuf += 15;
 		switch (scat) {
-		case 1: strcat(sbuf, ", Printer");    break;
-		case 2: strcat(sbuf, ", Scanner");    break;
-		case 3: strcat(sbuf, ", Fax");        break;
-		case 4: strcat(sbuf, ", Copier");     break;
-		case 5: strcat(sbuf, ", All-in-one"); break;
+		case 1: strcpy(sbuf, ", Printer");    break;
+		case 2: strcpy(sbuf, ", Scanner");    break;
+		case 3: strcpy(sbuf, ", Fax");        break;
+		case 4: strcpy(sbuf, ", Copier");     break;
+		case 5: strcpy(sbuf, ", All-in-one"); break;
 		default: break;
 		};
 		break;
@@ -259,11 +275,11 @@ void build_dev_type_string(const uint16 cat, const uint16 scat, char *sbuf, cons
 		strcpy(sbuf, "Camera");
 		sbuf += 6;
 		switch (scat) {
-		case 1: strcat(sbuf, ", Printer");    break;
-		case 2: strcat(sbuf, ", Scanner");    break;
-		case 3: strcat(sbuf, ", Fax");        break;
-		case 4: strcat(sbuf, ", Copier");     break;
-		case 5: strcat(sbuf, ", All-in-one"); break;
+		case 1: strcpy(sbuf, ", Printer");    break;
+		case 2: strcpy(sbuf, ", Scanner");    break;
+		case 3: strcpy(sbuf, ", Fax");        break;
+		case 4: strcpy(sbuf, ", Copier");     break;
+		case 5: strcpy(sbuf, ", All-in-one"); break;
 		default: break;
 		};
 		break;
@@ -271,7 +287,7 @@ void build_dev_type_string(const uint16 cat, const uint16 scat, char *sbuf, cons
 		strcpy(sbuf, "Storage");
 		sbuf += 7;
 		switch (scat) {
-		case 1: strcat(sbuf, ", NAS"); break;
+		case 1: strcpy(sbuf, ", NAS"); break;
 		default: break;
 		};
 		break;
@@ -279,10 +295,10 @@ void build_dev_type_string(const uint16 cat, const uint16 scat, char *sbuf, cons
 		strcpy(sbuf, "Network Infrastructure");
 		sbuf += 22;
 		switch (scat) {
-		case 1: strcat(sbuf, ", AP");      break;
-		case 2: strcat(sbuf, ", Router");  break;
-		case 3: strcat(sbuf, ", Switch");  break;
-		case 4: strcat(sbuf, ", Gateway"); break;
+		case 1: strcpy(sbuf, ", AP");      break;
+		case 2: strcpy(sbuf, ", Router");  break;
+		case 3: strcpy(sbuf, ", Switch");  break;
+		case 4: strcpy(sbuf, ", Gateway"); break;
 		default: break;
 		};
 		break;
@@ -290,10 +306,10 @@ void build_dev_type_string(const uint16 cat, const uint16 scat, char *sbuf, cons
 		strcpy(sbuf, "Display");
 		sbuf += 7;
 		switch (scat) {
-		case 1: strcat(sbuf, ", Television");               break;
-		case 2: strcat(sbuf, ", Electronic Picture Frame"); break;
-		case 3: strcat(sbuf, ", Projector");                break;
-		case 4: strcat(sbuf, ", Monitor");                  break;
+		case 1: strcpy(sbuf, ", Television");               break;
+		case 2: strcpy(sbuf, ", Electronic Picture Frame"); break;
+		case 3: strcpy(sbuf, ", Projector");                break;
+		case 4: strcpy(sbuf, ", Monitor");                  break;
 		default: break;
 		};
 		break;
@@ -301,11 +317,11 @@ void build_dev_type_string(const uint16 cat, const uint16 scat, char *sbuf, cons
 		strcpy(sbuf, "Multimedia Device");
 		sbuf += 17;
 		switch (scat) {
-		case 1: strcat(sbuf, ", DAR");                           break;
-		case 2: strcat(sbuf, ", PVR");                           break;
-		case 3: strcat(sbuf, ", MCX");                           break;
-		case 4: strcat(sbuf, ", Set-top box");                   break;
-		case 5: strcat(sbuf, ", Media server/adapter/extender"); break;
+		case 1: strcpy(sbuf, ", DAR");                           break;
+		case 2: strcpy(sbuf, ", PVR");                           break;
+		case 3: strcpy(sbuf, ", MCX");                           break;
+		case 4: strcpy(sbuf, ", Set-top box");                   break;
+		case 5: strcpy(sbuf, ", Media server/adapter/extender"); break;
 		default: break;
 		};
 		break;
@@ -313,11 +329,11 @@ void build_dev_type_string(const uint16 cat, const uint16 scat, char *sbuf, cons
 		strcpy(sbuf, "Gaming Device");
 		sbuf += 13;
 		switch (scat) {
-		case 1: strcat(sbuf, ", Xbox");                   break;
-		case 2: strcat(sbuf, ", Xbox360");                break;
-		case 3: strcat(sbuf, ", Playstation");            break;
-		case 4: strcat(sbuf, ", Game console/adapter");   break;
-		case 5: strcat(sbuf, ", Portable gaming device"); break;
+		case 1: strcpy(sbuf, ", Xbox");                   break;
+		case 2: strcpy(sbuf, ", Xbox360");                break;
+		case 3: strcpy(sbuf, ", Playstation");            break;
+		case 4: strcpy(sbuf, ", Game console/adapter");   break;
+		case 5: strcpy(sbuf, ", Portable gaming device"); break;
 		default: break;
 		};
 		break;
@@ -325,11 +341,11 @@ void build_dev_type_string(const uint16 cat, const uint16 scat, char *sbuf, cons
 		strcpy(sbuf, "Telephone");
 		sbuf += 9;
 		switch (scat) {
-		case 1: strcat(sbuf, ", Windows Mobile");           break;
-		case 2: strcat(sbuf, ", Phone - single mode");      break;
-		case 3: strcat(sbuf, ", Phone - dual mode");        break;
-		case 4: strcat(sbuf, ", Smartphone - single mode"); break;
-		case 5: strcat(sbuf, ", Smartphone - dual mode");   break;
+		case 1: strcpy(sbuf, ", Windows Mobile");           break;
+		case 2: strcpy(sbuf, ", Phone - single mode");      break;
+		case 3: strcpy(sbuf, ", Phone - dual mode");        break;
+		case 4: strcpy(sbuf, ", Smartphone - single mode"); break;
+		case 5: strcpy(sbuf, ", Smartphone - dual mode");   break;
 		default: break;
 		};
 		break;
@@ -337,23 +353,24 @@ void build_dev_type_string(const uint16 cat, const uint16 scat, char *sbuf, cons
 		strcpy(sbuf, "Audio Device");
 		sbuf += 12;
 		switch (scat) {
-		case 1: strcat(sbuf, ", Audio tuner/receiver");  break;
-		case 2: strcat(sbuf, ", Speakers");              break;
-		case 3: strcat(sbuf, ", Portable Music Player"); break;
-		case 4: strcat(sbuf, ", Headset");               break;
-		case 5: strcat(sbuf, ", Headphones");            break;
-		case 6: strcat(sbuf, ", Microphone");            break;
-		case 7: strcat(sbuf, ", Home Threater Systems"); break;
+		case 1: strcpy(sbuf, ", Audio tuner/receiver");  break;
+		case 2: strcpy(sbuf, ", Speakers");              break;
+		case 3: strcpy(sbuf, ", Portable Music Player"); break;
+		case 4: strcpy(sbuf, ", Headset");               break;
+		case 5: strcpy(sbuf, ", Headphones");            break;
+		case 6: strcpy(sbuf, ", Microphone");            break;
+		case 7: strcpy(sbuf, ", Home Threater Systems"); break;
 		default: break;
 		};
 		break;
 	default:
 		break;
 	};
+	return origin;
 };
 
 
-void build_conf_methods_string(const uint16 method, char *sbuf, const int blen)
+char *build_conf_methods_string(const uint16 method, char *sbuf)
 {
 	int offset = 0;
 	sbuf[0] = '\0';
@@ -401,6 +418,7 @@ void build_conf_methods_string(const uint16 method, char *sbuf, const int blen)
 		strcat(sbuf + offset, "USB");
 		offset += 3;
 	};
+	return sbuf;
 };
 
 

@@ -117,6 +117,7 @@ int main(int argc, char *argv[])
 	struct timeval timer;
 	struct sigaction sigact = { 0 };
 	struct stat wstat;
+	wps_info_t wps_info = { 0 };
 
 	FILE *rf, *of;
 
@@ -628,14 +629,14 @@ ap_beacon:
 	tags[tn++] = (tag_t*)MS_WPS_TAG;
 	tags[tn] = NULL;
 
-	{ /* Get vendor OUI from frame when present */
-		uint8 oui[3];
-		if (get_oui_vendor(tag, tlen, oui)) {
-			char vendor[OUI_STR_LEN];
-			memcpy(vendor, get_vendor(oui), OUI_STR_LEN);
-			vprint("[+] Vendor '%s' (%02x:%02x:%02x)\n", vendor, oui[0], oui[1], oui[2]);
-		};
-	}
+	/* Get vendor OUI from frame when present */
+	if (get_oui_vendor(tag, tlen, wps_info.vendor)) {
+		char vendor[OUI_STR_LEN];
+		memcpy(vendor, get_vendor(wps_info.vendor), OUI_STR_LEN);
+		vprint("[!] Vendor '%s' (%02x:%02x:%02x)\n", vendor,
+				wps_info.vendor[0], wps_info.vendor[1], wps_info.vendor[2]);
+		wps_info.vendor_p = TRUE;
+	};
 
 	if ((tag = find_tag(tag, tlen, TAG_VEND, 0, MS_WPS_ID, 4)) == NULL) {
 		vprint("[X] The AP doesn't appear to be WPS enabled (no WPS IE)\n");
@@ -646,24 +647,33 @@ ap_beacon:
 	vlen = tag->len - 4;
 	vt = find_vtag(vtag, vlen, TAG_WPS_STATE, 1);
 	if (!vt || vt->data[0] != TAG_WPS_CONFIG) {
-		vprint("[!] Beacon information element indicates WPS is not configured\n");
+		vprint("[!] Beacon IE indicates WPS is not configured (0x%02x)\n", vt->data[0]);
 	};
 	vt = find_vtag(vtag, vlen, TAG_WPS_APLOCK, 1);
 	if (vt && vt->data[0] == TAG_WPS_LOCKED) {
-		vprint("[!] Beacon information element indicates WPS is locked\n");
-	};
-	if (vt = find_vtag(vtag, vlen, TAG_WPS_V_EXT, 2)) {
-		uint8 *v2 = (uint8*)(vt->data + 3);
-		if (*v2++ == TAG_WPS_V2)
-			if (*v2++ == 1)
-				vprint("[+] WPS version '%u.%u'\n", *v2 >> 4, *v2 & 0x0f);
-	}
-	else {
-		/* Assume version 1 (some APs may report version 0) */
-		vprint("[+] WPS version '1.0'\n");
+		vprint("[!] Beacon IE indicates WPS is locked\n");
 	};
 
-	if (G->wpsinfo) { /* Build directed probe request to gather more WPS info */
+	if (vt = find_vtag(vtag, vlen, TAG_WPS_VERSION, 1)) {
+		wps_info.version = vt->data[0];
+	};
+	if (vt = find_vtag(vtag, vlen, TAG_WPS_V_EXT, 2)) {
+		if (memcmp(vt->data, WFA_VENDOR, 3) == 0) {
+			uint8 *v2 = (uint8*)(vt->data + 3);
+			int wfa_len = be16toh(vt->len);
+			while (wfa_len > 0) {
+				if (*v2 == TAG_WPS_V2) {
+					wps_info.version = v2[2];
+					break;
+				};
+				wfa_len -= v2[1] + 2;
+				v2 += v2[1] + 2;
+			};
+		};
+	};
+	vprint("[!] WPS version '%u.%u'\n", wps_info.version >> 4, wps_info.version & 0x0f);
+
+	if (G->wpsinfo) { /* Build direct probe request to gather more WPS info */
 		mac = (mac_t*)(&prober[RTH_SIZE]);
 		memcpy(mac->adr2.addr, G->hwmac, 6);
 		tags[0] = (tag_t*)(essidt);
@@ -705,70 +715,67 @@ ap_probe:
 			if (tag = find_tag(tag, tlen, TAG_VEND, 0, MS_WPS_ID, 4)) {
 				vtag = (vtag_t*)&tag->data[4];
 				vlen = tag->len - 4;
-				vtag_t *init_vtag = vtag; /* Assuming WPS tags are not ordered */
-				int tsiz = 0;
-				char dn[32];
+				vtag_t *init_vtag = vtag;
 
-				if (vtag = find_vtag(init_vtag, vlen, TAG_WPS_UUID_E, 16)) {
-					vprint("[*] UUID Enrollee '%s'\n", hex(vtag->data, 16));
-				};
-				if (vtag = find_vtag(init_vtag, vlen, TAG_WPS_D_NAME, 0)) {
-					tsiz = be16toh(vtag->len);
-					memcpy(dn, vtag->data, tsiz);
-					dn[tsiz] = '\0';
-					vprint("[*] Device name '%s'\n", dn);
-				};
-				if (vtag = find_vtag(init_vtag, vlen, TAG_WPS_D_TYPE, 8)) {
-					char dtype[50];
-					uint16_t cat  = be16toh(*((uint16_t*)(&vtag->data[0])));
-					uint16_t scat = be16toh(*((uint16_t*)(&vtag->data[6])));
-					build_dev_type_string(cat, scat, dtype, 50);
-					vprint("[*] Device type '%s'\n", dtype);
-				};
-				if (vtag = find_vtag(init_vtag, vlen, TAG_WPS_MANU, 0)) {
-					tsiz = be16toh(vtag->len);
-					memcpy(dn, vtag->data, tsiz);
-					dn[tsiz] = '\0';
-					vprint("[*] Manufacturer '%s'\n", dn);
-				};
-				if (vtag = find_vtag(init_vtag, vlen, TAG_WPS_M_NAME, 0)) {
-					tsiz = be16toh(vtag->len);
-					memcpy(dn, vtag->data, tsiz);
-					dn[tsiz] = '\0';
-					vprint("[*] Model name '%s'\n", dn);
-				};
-				if (vtag = find_vtag(init_vtag, vlen, TAG_WPS_M_NUM, 0)) {
-					tsiz = be16toh(vtag->len);
-					memcpy(dn, vtag->data, tsiz);
-					dn[tsiz] = '\0';
-					vprint("[*] Model number '%s'\n", dn);
-				};
-				if (vtag = find_vtag(init_vtag, vlen, TAG_WPS_SERIAL, 0)) {
-					tsiz = be16toh(vtag->len);
-					memcpy(dn, vtag->data, tsiz);
-					dn[tsiz] = '\0';
-					vprint("[*] Serial number '%s'\n", dn);
+				if (vtag = find_vtag(vtag, vlen, TAG_WPS_PASSWD, 2)) {
+					wps_info.passw_id = be16toh(*((uint16_t*)(&vtag->data[0])));
+					wps_info.passw_id_p = TRUE;
+					if (wps_info.passw_id != DEV_PW_DEFAULT) {
+						char c_pwid[20];
+						vprint("[!] Device Password ID is not set to PIN but to '%s' (0x%04x)\n",
+								build_dev_passw_id(wps_info.passw_id, c_pwid), wps_info.passw_id);
+					};
+				}
+				else {
+					vprint("[!] Device Password ID is not present in probe response\n");
 				};
 				if (vtag = find_vtag(init_vtag, vlen, TAG_WPS_CONF_M, 2)) {
-					char methods[60];
-					uint16_t m = be16toh(*((uint16_t*)(&vtag->data[0])));
-					build_conf_methods_string(m, methods, 60);
-					vprint("[*] Methods '%s'\n", methods);
+					char c_buff[60];
+					wps_info.config_methods = be16toh(*((uint16_t*)(&vtag->data[0])));
+					if (wps_info.config_methods & WPS_CONF_LABEL == 0)
+						vprint("[!] Method Label doesn't seem to be supported\n");
+					vprint("[!] Configuration methods '%s'\n",
+							build_conf_methods_string(wps_info.config_methods, c_buff));
 				};
-				if (vtag = find_vtag(init_vtag, vlen, TAG_WPS_BANDS, 1)) {
-					char bands[18];
-					bands[0] = '\0';
-					int poff = 0;
-					if (vtag->data[0] & 1) {
-						strncpy(bands, "'2.4GHz'", 8 + 1);
-						poff = 8;
-					};
-					if (vtag->data[0] & 2) {
-						if (poff)
-							bands[poff++] = ' ';
-						strncpy(bands + poff, "'5.0Ghz'", 8 + 1);
-					}
-					vprint("[*] RF bands %s\n", bands);
+				if (vtag = find_vtag(init_vtag, vlen, TAG_WPS_D_TYPE, 8)) {
+					char c_buff[60];
+					wps_info.category  = be16toh(*((uint16_t*)(&vtag->data[0])));
+					wps_info.subcategory = be16toh(*((uint16_t*)(&vtag->data[6])));
+					vprint("[!] Device type '%s'\n",
+							build_dev_type_string(wps_info.category, wps_info.subcategory, c_buff));
+				};
+				if (vtag = find_vtag(init_vtag, vlen, TAG_WPS_UUID_E, 16)) {
+					memcpy(wps_info.uuid, vtag->data, 16);
+				};
+				if (vtag = find_vtag(init_vtag, vlen, TAG_WPS_D_NAME, 0)) {
+					int tag_size = be16toh(vtag->len);
+					memcpy(wps_info.device_name, vtag->data, tag_size);
+					wps_info.device_name[tag_size] = '\0';
+					vprint("[!] Device name '%s'\n", wps_info.device_name);
+				};
+				if (vtag = find_vtag(init_vtag, vlen, TAG_WPS_MANU, 0)) {
+					int tag_size = be16toh(vtag->len);
+					memcpy(wps_info.manufacturer, vtag->data, tag_size);
+					wps_info.manufacturer[tag_size] = '\0';
+					vprint("[!] Manufacturer '%s'\n", wps_info.manufacturer);
+				};
+				if (vtag = find_vtag(init_vtag, vlen, TAG_WPS_M_NAME, 0)) {
+					int tag_size = be16toh(vtag->len);
+					memcpy(wps_info.model_name, vtag->data, tag_size);
+					wps_info.model_name[tag_size] = '\0';
+					vprint("[!] Model name '%s'\n", wps_info.model_name);
+				};
+				if (vtag = find_vtag(init_vtag, vlen, TAG_WPS_M_NUM, 0)) {
+					int tag_size = be16toh(vtag->len);
+					memcpy(wps_info.model_number, vtag->data, tag_size);
+					wps_info.model_number[tag_size] = '\0';
+					vprint("[!] Model number '%s'\n", wps_info.model_number);
+				};
+				if (vtag = find_vtag(init_vtag, vlen, TAG_WPS_SERIAL, 0)) {
+					int tag_size = be16toh(vtag->len);
+					memcpy(wps_info.serial_number, vtag->data, tag_size);
+					wps_info.serial_number[tag_size] = '\0';
+					vprint("[!] Serial number '%s'\n", wps_info.serial_number);
 				};
 			};
 		};

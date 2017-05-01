@@ -814,7 +814,7 @@ ap_probe:
 	};
 
 	for (k = 0; k < 16; k++)
-		wconf->wps->uuid[k] = random() % 256;
+		wconf->wps->uuid[k] = random() & 255;
 	G->wdata = wps_init(wconf);
 	if (!G->wdata) {
 		vprint("[X] Failed to initialize the WPS structure, exiting\n");

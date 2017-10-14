@@ -139,6 +139,10 @@ struct global {
 	uint8 hwmac[6];
 	char *hop;
 	char *warpath;
+#ifdef HAVE_LUA
+	char *luaf;
+	lua_State *luavm;
+#endif
 	char *runf;
 	char *pinf;
 	char schan[8];
@@ -228,6 +232,9 @@ char usage[] =
 	"      -o, --outfile file     : Output file for messages          [stdout]\n"
 	"      -p, --pin N            : Starting pin number (7 or 8 digits) [Auto]\n"
 	"      -s, --source macaddr   : Source (hardware) MAC address      [Probe]\n"
+#ifdef HAVE_LUA
+	"      -u, --lua              : Lua script file                           \n"
+#endif
 	"      -v, --verbosity N      : Verbosity level 1-3, 1 is quietest     [3]\n"
 	"      -w, --workdir path     : Location of pin/session files  [~/.bully/]\n"
 	"      -5, --5ghz             : Hop on 5GHz a/n default channel list  [No]\n"

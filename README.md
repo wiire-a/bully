@@ -24,6 +24,7 @@ functionality.
 
 Bully can be built and installed by running:
 
+	~/bully$ sudo apt-get install libpcap-dev
 	~/bully$ cd src
 	~/bully/src$ make
 	~/bully/src$ sudo make install

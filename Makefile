@@ -32,4 +32,4 @@ define Package/bully/install
 	$(INSTALL_BIN) $(PKG_BUILD_DIR)/src/bully $(1)/usr/bin/
 endef
 
-$(eval $(call BuildPackage,bully)) 
+$(eval $(call BuildPackage,bully))

@@ -75,7 +75,7 @@ Optional arguments:
   -o, --outfile file     : Output file for messages          [stdout]
   -p, --pin N            : Starting pin number (7 or 8 digits) [Auto]
   -s, --source macaddr   : Source (hardware) MAC address      [Probe]
-  -v, --verbosity N      : Verbosity level 1-3, 1 is quietest     [3]
+  -v, --verbosity N      : Verbosity level 1-4, 1 is quietest     [4]
   -w, --workdir path     : Location of pin/session files  [~/.bully/]
   -5, --5ghz             : Hop on 5GHz a/n default channel list  [No]
   -B, --bruteforce       : Bruteforce the WPS pin checksum digit [No]
@@ -108,6 +108,7 @@ Advanced arguments:
 
 # DESCRIPTION OF ARGUMENTS
 
+```
       -c, --channel N[,N...]
 
 		Channel number, or comma separated list of channels to hop on. Some AP's will switch
@@ -152,7 +153,7 @@ Advanced arguments:
       -v, --verbosity N
 
 		Verbosity level. 1 is the quietest, displaying only unrecoverable error information. Level
-		3 displays the most information, and is best used to determine exactly what is happening
+		4 displays the most information, and is best used to determine exactly what is happening
 		during a session.
 
       -w, --workdir path
@@ -288,4 +289,12 @@ Advanced arguments:
       -h, --help
 
 		Display onscreen help.
+```
 
+## -d // --pixiewps
+The -d option option performs an offline attack, Pixie Dust _(`pixiewps`)_, by automatically passing the **PKE**, **PKR**, **E-Hash1**, **E-Hash2**, **E-Nonce** and **Authkey**. `pixiewps` will then try to attack **Ralink**, **Broadcom** and **Realtek** chipsets.
+
+## -v // --verbosity
+The -v option specifies the verbosity of **bully**.
+-v 4 now prints all the collected hashes and outputs the pixiewps command run.
+Default runlevel is 3.

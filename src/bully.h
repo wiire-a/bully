@@ -202,6 +202,7 @@ struct global {
 	wpsd_t *wdata;
 	int16 *pin1;
 	int16 *pin2;
+
 };
 
 #define W7_DEVICE_NAME     "Glau"
@@ -235,7 +236,7 @@ char usage[] =
 #ifdef HAVE_LUA
 	"      -u, --lua              : Lua script file                           \n"
 #endif
-	"      -v, --verbosity N      : Verbosity level 1-3, 1 is quietest     [3]\n"
+	"      -v, --verbosity N      : Verbosity level 1-44, 1 is quietest     [3]\n"
 	"      -w, --workdir path     : Location of pin/session files  [~/.bully/]\n"
 	"      -5, --5ghz             : Hop on 5GHz a/n default channel list  [No]\n"
 	"      -B, --bruteforce       : Bruteforce the WPS pin checksum digit [No]\n"
@@ -245,6 +246,7 @@ char usage[] =
 	"\n"
 	"  Advanced arguments:\n"
 	"\n"
+	"      -d, --pixiewps         : Attempt to use pixiewps               [No]\n"
 	"      -a, --acktime N        : Deprecated/ignored                  [Auto]\n"
 	"      -r, --retries N        : Resend packets N times when not acked  [2]\n"
 	"      -m, --m13time N        : Deprecated/ignored                  [Auto]\n"

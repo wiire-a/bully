@@ -55,6 +55,31 @@ int wps_build_public_key(struct wps_data *wps, struct wpabuf *msg)
 	if (wps->registrar) {
 		wpabuf_free(wps->dh_pubkey_r);
 		wps->dh_pubkey_r = pubkey;
+
+		if (run_pixiewps == 1) {
+			unsigned char *v;
+		        v = wpabuf_mhead_u8(pubkey);
+
+			memset(pixie_pkr,0,sizeof(pixie_pkr));
+			char *get_pkr;
+			get_pkr=malloc( 1000 * sizeof(char));
+			int pixiecnt = 0;
+	       		for (; pixiecnt < 192; pixiecnt++) {
+				sprintf(get_pkr, "%02x",  v[pixiecnt]);
+				strcat(pixie_pkr, get_pkr);
+				if (pixiecnt != 191) {
+					strcat(pixie_pkr,":");
+				}
+			}
+			free(get_pkr);
+			if ( debug_level <= 3 )
+			{
+				printf("[P] PKR receieved.\n");
+			} else {
+				printf("[P] PKR: %s\n", pixie_pkr);
+			}
+		}
+
 	} else {
 		wpabuf_free(wps->dh_pubkey_e);
 		wps->dh_pubkey_e = pubkey;

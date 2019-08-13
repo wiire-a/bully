@@ -26,6 +26,7 @@
 #include "wps_dev_attr.h"
 #include "wps_upnp.h"
 #include "wps_upnp_i.h"
+#include "pixie.h"
 
 #define WPS_WORKAROUNDS
 
@@ -1328,6 +1329,28 @@ static struct wpabuf * wps_build_m2(struct wps_data *wps)
 		    wps->nonce_r, WPS_NONCE_LEN);
 	wpa_hexdump(MSG_DEBUG, "WPS: UUID-R", wps->uuid_r, WPS_UUID_LEN);
 
+	if (run_pixiewps == 1)
+	{
+		memset(pixie_rnonce,0,sizeof(pixie_rnonce));
+		char *get_rnonce;
+		get_rnonce=malloc(100 * sizeof(char));
+		int pixiecnt = 0;
+		for (; pixiecnt < WPS_NONCE_LEN; pixiecnt++) {
+			sprintf(get_rnonce, "%02x", wps->nonce_r[pixiecnt]);
+			strcat(pixie_rnonce, get_rnonce);
+			if (pixiecnt != WPS_NONCE_LEN - 1) {
+				strcat(pixie_rnonce,":");
+			}
+	    }
+	    free(get_rnonce);
+	    if ( debug_level <= 3 )
+		{
+			printf("[P] RNonce received.\n");
+		} else {
+			printf("[P] RNonce: %s\n", pixie_rnonce);
+		}
+	}
+
 	wpa_printf(MSG_DEBUG, "WPS: Building Message M2");
 	msg = wpabuf_alloc(1000);
 	if (msg == NULL)
@@ -1659,6 +1682,30 @@ static int wps_process_enrollee_nonce(struct wps_data *wps, const u8 *e_nonce)
 	wpa_hexdump(MSG_DEBUG, "WPS: Enrollee Nonce",
 		    wps->nonce_e, WPS_NONCE_LEN);
 
+	if (run_pixiewps == 1) {
+		memset(pixie_enonce,0,sizeof(pixie_enonce));
+
+		int pixiecnt = 0;
+	    	char *get_enonce;
+	    	get_enonce=malloc(100 * sizeof(char));
+	        for (; pixiecnt < WPS_NONCE_LEN; pixiecnt++)
+	        {
+			sprintf(get_enonce, "%02x",  wps->nonce_e[pixiecnt]);
+			strcat(pixie_enonce, get_enonce);
+			if (pixiecnt != WPS_NONCE_LEN - 1) {
+				strcat(pixie_enonce,":");
+			}
+
+		}
+		free(get_enonce);
+		if ( debug_level <= 3 )
+		{
+			printf("[P] ENonce received.\n");
+		} else {
+			printf("[P] ENonce: %s\n", pixie_enonce);
+		}
+	}
+
 	return 0;
 }
 
@@ -1717,6 +1764,27 @@ static int wps_process_e_hash1(struct wps_data *wps, const u8 *e_hash1)
 	os_memcpy(wps->peer_hash1, e_hash1, WPS_HASH_LEN);
 	wpa_hexdump(MSG_DEBUG, "WPS: E-Hash1", wps->peer_hash1, WPS_HASH_LEN);
 
+	if (run_pixiewps == 1) {
+		memset(pixie_ehash1,0,sizeof(pixie_ehash1));
+		int pixiecnt = 0;
+		char *get_eh1;
+		get_eh1=malloc(100 * sizeof(char));
+		for (; pixiecnt < WPS_HASH_LEN; pixiecnt++) {
+			sprintf(get_eh1, "%02x", wps->peer_hash1[pixiecnt]);
+			strcat(pixie_ehash1, get_eh1);
+			if (pixiecnt != WPS_HASH_LEN - 1) {
+				strcat(pixie_ehash1,":");
+			}
+		}
+		free(get_eh1);
+		if ( debug_level <= 3 )
+		{
+			printf("[P] E-Hash1 received.\n");
+		} else {
+			printf("[P] E-Hash1: %s\n", pixie_ehash1);
+		}
+	}
+
 	return 0;
 }
 
@@ -1731,9 +1799,30 @@ static int wps_process_e_hash2(struct wps_data *wps, const u8 *e_hash2)
 	os_memcpy(wps->peer_hash2, e_hash2, WPS_HASH_LEN);
 	wpa_hexdump(MSG_DEBUG, "WPS: E-Hash2", wps->peer_hash2, WPS_HASH_LEN);
 
+	if (run_pixiewps == 1) {
+		memset(pixie_ehash2,0,sizeof(pixie_ehash2));
+		int pixiecnt = 0;
+		char *get_eh2;
+		get_eh2=malloc(100 * sizeof(char));
+		for (; pixiecnt < WPS_HASH_LEN; pixiecnt++) {
+			sprintf(get_eh2, "%02x",  wps->peer_hash2[pixiecnt]);
+			strcat(pixie_ehash2, get_eh2);
+			if (pixiecnt != WPS_HASH_LEN - 1) {
+				strcat(pixie_ehash2,":");
+			}
+		}
+		free(get_eh2);
+		if ( debug_level <= 3 )
+		{
+			printf("[P] E-Hash2 received.\n");
+		} else {
+		printf("[P] E-Hash2: %s\n", pixie_ehash2);
+		}
+		run_pixiewps = 1;
+	}
+
 	return 0;
 }
-
 
 static int wps_process_e_snonce1(struct wps_data *wps, const u8 *e_snonce1)
 {
@@ -1863,9 +1952,29 @@ static int wps_process_pubkey(struct wps_data *wps, const u8 *pk,
 	if (wps->dh_pubkey_e == NULL)
 		return -1;
 
+	if (run_pixiewps == 1) {
+		memset(pixie_pke,0,sizeof(pixie_pke));
+		int pixiecnt = 0;
+		char *get_pke;
+		get_pke=malloc(1000 * sizeof(char));
+		for (; pixiecnt < 192; pixiecnt++) {
+			sprintf(get_pke, "%02x", pk[pixiecnt]);
+			strcat(pixie_pke, get_pke);
+			if (pixiecnt != 191) {
+				strcat(pixie_pke,":");
+			}
+		}
+		free(get_pke);
+		if ( debug_level <= 3 )
+		{
+			printf("[P] PKE received.\n");
+		} else {
+			printf("[P] PKE: %s\n", pixie_pke);
+		}
+	}
+
 	return 0;
 }
-
 
 static int wps_process_auth_type_flags(struct wps_data *wps, const u8 *auth)
 {

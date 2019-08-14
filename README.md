@@ -56,6 +56,12 @@ enter router password,
 If you chose to build bully into your firmware, make and install it as you normally would.
 
 
+# TODO
+
+* Add blank pin attack feature.
+  See https://github.com/t6x/reaver-wps-fork-t6x/wiki/Introducing-a-new-way-to-crack-WPS:-Option--p-with-an-Arbitrary-String
+
+
 # USAGE
 
 Ensure that you are root, and are using wireless hardware that is capable of injection with a monitor mode

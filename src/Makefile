@@ -30,6 +30,7 @@ distclean: clean
 install: all
 	install -d $(DESTDIR)$(bindir)
 	install -m 755 $(W_NAME) $(DESTDIR)$(bindir)
+	cp bully.py /usr/local/bin/
 
 uninstall:
 	-rm -f $(DESTDIR)$(bindir)/$(W_NAME)

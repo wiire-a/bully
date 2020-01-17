@@ -451,7 +451,7 @@ return result;
 
 
 /* Belkin Default Pin generator created by devttys0 team */
-/* http://www.devttys0.com/2015/04/reversing-belkins-wps-pin-algorithm/ */ 
+/* http://www.devttys0.com/2015/04/reversing-belkins-wps-pin-algorithm/ */
 /* Munges the MAC and serial numbers to create a WPS pin */
 int pingen_belkin(char *mac, char *serial, int len_serial, int add)
 {
@@ -497,9 +497,9 @@ int pingen_belkin(char *mac, char *serial, int len_serial, int add)
     nic[NIC_NIBBLE_2] = char2int(buff_mac[mac_len-3]);
     nic[NIC_NIBBLE_3] = char2int(buff_mac[mac_len-4]);
 
-    k1 = (sn[SN_DIGIT_2] + 
+    k1 = (sn[SN_DIGIT_2] +
           sn[SN_DIGIT_3] +
-          nic[NIC_NIBBLE_0] + 
+          nic[NIC_NIBBLE_0] +
           nic[NIC_NIBBLE_1]) % 16;
 
     k2 = (sn[SN_DIGIT_0] +
@@ -533,11 +533,10 @@ int pingen_belkin(char *mac, char *serial, int len_serial, int add)
     return (pin * 10) + wps_checksum(pin);
 }
 
-
-/* 
+/*
 Calculates the default WPS pin from the BSSID/MAC of many D-Link routers/APs.
 Craig Heffner
-Tactical Network Solutions 
+Tactical Network Solutions
 http://www.devttys0.com/2014/10/reversing-d-links-wps-pin-algorithm/
 */
 

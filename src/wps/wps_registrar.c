@@ -2652,7 +2652,7 @@ static enum wps_process_res wps_process_wsc_nack(struct wps_data *wps,
 #endif /* CONFIG_WPS_UPNP */
 
 	if (attr.registrar_nonce == NULL ||
-	    os_memcmp(wps->nonce_r, attr.registrar_nonce, WPS_NONCE_LEN != 0))
+	    os_memcmp(wps->nonce_r, attr.registrar_nonce, WPS_NONCE_LEN) != 0)
 	{
 		wpa_printf(MSG_DEBUG, "WPS: Mismatch in registrar nonce");
 		return WPS_FAILURE;

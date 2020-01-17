@@ -13,9 +13,7 @@
  */
 
 #include "includes.h"
-
 #include "common.h"
-
 
 static int hex2num(char c)
 {
@@ -28,7 +26,6 @@ static int hex2num(char c)
 	return -1;
 }
 
-
 static int hex2byte(const char *hex)
 {
 	int a, b;
@@ -40,7 +37,6 @@ static int hex2byte(const char *hex)
 		return -1;
 	return (a << 4) | b;
 }
-
 
 /**
  * hwaddr_aton - Convert ASCII string to MAC address (colon-delimited format)
@@ -99,7 +95,6 @@ int hwaddr_aton2(const char *txt, u8 *addr)
 	return pos - txt;
 }
 
-
 /**
  * hexstr2bin - Convert ASCII hex string into binary data
  * @hex: ASCII hex string (e.g., "01ab")
@@ -125,7 +120,6 @@ int hexstr2bin(const char *hex, u8 *buf, size_t len)
 	return 0;
 }
 
-
 /**
  * inc_byte_array - Increment arbitrary length byte array by one
  * @counter: Pointer to byte array
@@ -146,7 +140,6 @@ void inc_byte_array(u8 *counter, size_t len)
 	}
 }
 
-
 void wpa_get_ntp_timestamp(u8 *buf)
 {
 	struct os_time now;
@@ -164,7 +157,6 @@ void wpa_get_ntp_timestamp(u8 *buf)
 	tmp = host_to_be32(usec);
 	os_memcpy(buf + 4, (u8 *) &tmp, 4);
 }
-
 
 static inline int _wpa_snprintf_hex(char *buf, size_t buf_size, const u8 *data,
 				    size_t len, int uppercase)
@@ -200,7 +192,6 @@ int wpa_snprintf_hex(char *buf, size_t buf_size, const u8 *data, size_t len)
 	return _wpa_snprintf_hex(buf, buf_size, data, len, 0);
 }
 
-
 /**
  * wpa_snprintf_hex_uppercase - Print data as a upper case hex string into buf
  * @buf: Memory area to use as the output buffer
@@ -215,9 +206,7 @@ int wpa_snprintf_hex_uppercase(char *buf, size_t buf_size, const u8 *data,
 	return _wpa_snprintf_hex(buf, buf_size, data, len, 1);
 }
 
-
 #ifdef CONFIG_ANSI_C_EXTRA
-
 #ifdef _WIN32_WCE
 void perror(const char *s)
 {
@@ -225,7 +214,6 @@ void perror(const char *s)
 		   s, (int) GetLastError());
 }
 #endif /* _WIN32_WCE */
-
 
 int optind = 1;
 int optopt;
@@ -325,7 +313,6 @@ TCHAR * wpa_strdup_tchar(const char *str)
 }
 #endif /* CONFIG_NATIVE_WINDOWS */
 
-
 /**
  * wpa_ssid_txt - Convert SSID to a printable string
  * @ssid: SSID (32-octet string)
@@ -356,12 +343,10 @@ const char * wpa_ssid_txt(const u8 *ssid, size_t ssid_len)
 	return ssid_txt;
 }
 
-
 void * __hide_aliasing_typecast(void *foo)
 {
     return foo;
 }
-
 
 /*
  * WPS pin generator for some Belkin routers. Default pin is generated from the
@@ -575,6 +560,7 @@ int pingen_zhaochunsheng(char *mac, int add)
 
     strcpy(bssid_copy, mac);
     bssid_parts = strtok(bssid_copy, ":");
+    free(bssid_copy);
 
     while(bssid_parts)
     {

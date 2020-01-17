@@ -1,6 +1,7 @@
 /*
     bully - retrieve WPA/WPA2 passphrase from a WPS-enabled AP
 
+    Copyright (C) 2020  kimocoder     <christian@aircrack-ng.org>
     Copyright (C) 2017  wiire         <wi7ire@gmail.com>
     Copyright (C) 2012  Brian Purcell <purcell.briand@gmail.com>
 
@@ -326,7 +327,7 @@ int get_start(struct global *G)
 			if (!(op_gen_pin == 0))
 			{
 
-				fprintf(rf, "# DO NOT MODIFY CONTENTS OF THIS FILE\n# '%s' (%s)\n", G->essid, G->ssids);	
+				fprintf(rf, "# DO NOT MODIFY CONTENTS OF THIS FILE\n# '%s' (%s)\n", G->essid, G->ssids);
 				fclose(rf);
 			};
 		};
